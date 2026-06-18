@@ -1,3 +1,6 @@
+// Verbatim port of src/utils/diff.ts. Keep behavior in sync with that file
+// until the old React app is removed in the Plan 3 cutover.
+
 export interface DiffWord {
   type: 'equal' | 'delete' | 'insert';
   value: string;

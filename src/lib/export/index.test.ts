@@ -23,7 +23,7 @@ test('txt report includes the similarity index and content', () => {
 
 test('md report renders a table and the summary', () => {
   const out = buildMdReport(rows, stats, at);
-  expect(out).toContain('# DiffStudio Comparison Report'.replace('DiffStudio', 'Juxta'));
+  expect(out).toContain('# Juxta Comparison Report');
   expect(out).toContain('| Source (L) | Target (R) | Symbol | Content |');
 });
 
