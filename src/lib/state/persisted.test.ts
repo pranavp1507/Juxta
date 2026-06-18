@@ -1,5 +1,5 @@
 import { test, expect } from 'bun:test';
-import { serialize, parseStored } from './settings.svelte';
+import { serialize, parseStored } from './persisted';
 
 test('serialize round-trips primitives', () => {
   expect(parseStored(serialize('dark'), 'light')).toBe('dark');

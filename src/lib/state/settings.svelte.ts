@@ -1,20 +1,9 @@
 // Rune-backed persisted settings store.
 // .svelte.ts extension required so the Svelte compiler processes $state.
 
-// ── Pure helpers (exported for unit tests) ────────────────────────────────────
+import { serialize, parseStored } from './persisted';
 
-export function serialize<T>(v: T): string {
-  return JSON.stringify(v);
-}
-
-export function parseStored<T>(raw: string | null, initial: T): T {
-  if (raw === null) return initial;
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    return initial;
-  }
-}
+export { serialize, parseStored };
 
 // ── Rune-backed persisted box ─────────────────────────────────────────────────
 
@@ -56,10 +45,10 @@ function initialTheme(): 'light' | 'dark' {
     const saved = localStorage.getItem('juxta-theme');
     if (saved === 'light' || saved === 'dark') return saved;
   }
-  if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    return 'dark';
+  if (typeof window !== 'undefined') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
-  return 'dark'; // default: dark (matches original App.tsx comment)
+  return 'dark'; // SSR fallback: no window available
 }
 
 // ── Settings singleton ────────────────────────────────────────────────────────
