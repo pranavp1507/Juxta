@@ -1,0 +1,6 @@
+{
+  "name": "Text Compare",
+  "description": "An elegant, fast, and responsive client-side side-by-side text difference comparison utility.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
