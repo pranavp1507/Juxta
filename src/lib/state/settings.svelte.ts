@@ -14,10 +14,8 @@ export { serialize, parseStored };
  *
  * Cross-module reactivity: returns a plain object with get/set `value`
  * accessors. The internal $state variable makes reads/writes reactive in
- * Svelte-compiled components and stores.
- *
- * In non-Svelte contexts (Bun test runner, plain TS): $state is a no-op
- * identity function shim so the module can be imported without crashing.
+ * Svelte-compiled components and stores. Pure serialization helpers live in
+ * ./persisted so they can be unit-tested without the Svelte compiler.
  */
 export function createPersisted<T>(key: string, initial: T): { value: T } {
   const isClient = typeof localStorage !== 'undefined';
