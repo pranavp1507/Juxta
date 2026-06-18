@@ -20,3 +20,7 @@ test('rule block detects css', () => {
 test('code keywords detect ts', () => {
   expect(detectLanguage('const x = 1;')).toBe('ts');
 });
+
+test('unrecognized prose falls through to ts', () => {
+  expect(detectLanguage('the quick brown fox jumps')).toBe('ts');
+});
