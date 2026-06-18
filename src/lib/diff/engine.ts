@@ -188,3 +188,96 @@ export function diffLines(linesLeft: string[], linesRight: string[]): DiffOp[] {
 
   return [...prefixOps, ...midOps, ...suffixOps];
 }
+
+/**
+ * Takes line-by-line DiffOps and aligns them into side-by-side rows.
+ * Detects adjacent deletions & insertions, merging them into "modify" rows with inline highlights.
+ */
+export function alignDiff(ops: DiffOp[], highlightMode: 'word' | 'char' = 'word'): AlignedDiffRow[] {
+  const result: AlignedDiffRow[] = [];
+  let idx = 0;
+  const len = ops.length;
+
+  while (idx < len) {
+    const op = ops[idx];
+
+    if (op.type === 'equal') {
+      result.push({
+        type: 'equal',
+        leftLineNum: op.leftIdx + 1,
+        rightLineNum: op.rightIdx + 1,
+        leftContent: op.lineLeft,
+        rightContent: op.lineRight
+      });
+      idx++;
+    } else {
+      // Gather consecutive deletes and inserts for high-quality side-by-side matching
+      const deletes: typeof op[] = [];
+      const inserts: typeof op[] = [];
+
+      while (idx < len && ops[idx].type !== 'equal') {
+        const currentOp = ops[idx];
+        if (currentOp.type === 'delete') {
+          deletes.push(currentOp);
+        } else if (currentOp.type === 'insert') {
+          inserts.push(currentOp);
+        }
+        idx++;
+      }
+
+      const matchCount = Math.max(deletes.length, inserts.length);
+
+      for (let k = 0; k < matchCount; k++) {
+        const delOp = deletes[k] as Extract<DiffOp, { type: 'delete' }> | undefined;
+        const insOp = inserts[k] as Extract<DiffOp, { type: 'insert' }> | undefined;
+
+        if (delOp && insOp) {
+          // Both side-by-side are filled: represent as a custom modify-row with inline word/char highlights
+          const leftLineText = delOp.line;
+          const rightLineText = insOp.line;
+
+          const leftTokens = highlightMode === 'char' ? Array.from(leftLineText) : tokenize(leftLineText);
+          const rightTokens = highlightMode === 'char' ? Array.from(rightLineText) : tokenize(rightLineText);
+
+          const tokenDiffs = diffTokens(leftTokens, rightTokens);
+
+          // leftWords is for original: keep original matching tokens and deleted tokens (filter out inserts)
+          const leftWords = tokenDiffs
+            .filter(w => w.type !== 'insert')
+            .map(w => ({ type: w.type, value: w.value }));
+
+          // rightWords is for modified: keep original matching tokens and inserted tokens (filter out deletes)
+          const rightWords = tokenDiffs
+            .filter(w => w.type !== 'delete')
+            .map(w => ({ type: w.type, value: w.value }));
+
+          result.push({
+            type: 'modify',
+            leftLineNum: delOp.leftIdx + 1,
+            rightLineNum: insOp.rightIdx + 1,
+            leftContent: leftLineText,
+            rightContent: rightLineText,
+            leftWords,
+            rightWords
+          });
+        } else if (delOp) {
+          // Only delete exists
+          result.push({
+            type: 'delete',
+            leftLineNum: delOp.leftIdx + 1,
+            leftContent: delOp.line
+          });
+        } else if (insOp) {
+          // Only insert exists
+          result.push({
+            type: 'insert',
+            rightLineNum: insOp.rightIdx + 1,
+            rightContent: insOp.line
+          });
+        }
+      }
+    }
+  }
+
+  return result;
+}
