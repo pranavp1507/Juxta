@@ -60,7 +60,7 @@
           <!-- Original Line deletion -->
           <tr class="font-mono text-xs leading-6 bg-rose-50/40 border-l-[3px] border-rose-500/70 dark:bg-rose-950/10 border-b border-slate-100/50 dark:border-slate-900/10">
             {#if settings.showLineNumbers}
-              <td class="w-12 text-right pr-2 select-none text-[10px] text-slate-600 dark:text-slate-500 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35">
+              <td class="w-12 text-right pr-2 select-none text-[10px] text-slate-600 dark:text-slate-400 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35">
                 {row.leftLineNum}
               </td>
               <td class="w-12 text-right pr-2 select-none text-[10px] text-rose-500 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35">
@@ -85,7 +85,7 @@
               <td class="w-12 text-right pr-2 select-none text-[10px] text-emerald-500 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35">
                 +
               </td>
-              <td class="w-12 text-right pr-2 select-none text-[10px] text-slate-600 dark:text-slate-500 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35">
+              <td class="w-12 text-right pr-2 select-none text-[10px] text-slate-600 dark:text-slate-400 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35">
                 {row.rightLineNum}
               </td>
             {/if}
@@ -127,10 +127,10 @@
             transition:fly={{ y: 4, duration: reduceMotion ? 0 : 150 }}
           >
             {#if settings.showLineNumbers}
-              <td class="w-12 text-right pr-2 select-none text-[10px] text-slate-400 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35 pt-1">
+              <td class="w-12 text-right pr-2 select-none text-[10px] text-slate-600 dark:text-slate-400 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35 pt-1">
                 {leftNum}
               </td>
-              <td class="w-12 text-right pr-2 select-none text-[10px] text-slate-400 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35 pt-1">
+              <td class="w-12 text-right pr-2 select-none text-[10px] text-slate-600 dark:text-slate-400 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35 pt-1">
                 {rightNum}
               </td>
             {/if}

@@ -24,7 +24,7 @@
       <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
       <span>{modifications} Modifications</span>
     </div>
-    <div class="flex items-center gap-2 text-slate-500 dark:text-slate-500 font-mono text-[11px] font-normal lowercase">
+    <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-mono text-[11px] font-normal lowercase">
       &bull; congruency {similarityPercentage}%
     </div>
   </div>

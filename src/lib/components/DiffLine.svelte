@@ -54,11 +54,11 @@
    */
   function segmentColorClass(type: SegmentType): string {
     const isSoft = settings.syntaxScheme === 'soft';
-    if (type === 'comment')    return isSoft ? 'text-slate-500 dark:text-slate-600 italic'                            : 'text-slate-600 dark:text-slate-450 italic';
+    if (type === 'comment')    return isSoft ? 'text-slate-500 dark:text-slate-400 italic'                            : 'text-slate-600 dark:text-slate-450 italic';
     if (type === 'string')     return isSoft ? 'text-emerald-700/80 dark:text-emerald-400/70 font-normal'             : 'text-emerald-700 dark:text-emerald-400 font-medium';
     if (type === 'keyword')    return isSoft ? 'text-indigo-700/80 dark:text-sky-400/70 font-medium'                  : 'text-indigo-700 dark:text-sky-400 font-semibold';
     if (type === 'number')     return isSoft ? 'text-amber-700/75 dark:text-orange-400/75'                            : 'text-amber-700 dark:text-orange-400';
-    if (type === 'punctuation')return isSoft ? 'text-slate-500/80 dark:text-slate-500/80'                             : 'text-slate-600 dark:text-slate-400';
+    if (type === 'punctuation')return isSoft ? 'text-slate-500/80 dark:text-slate-400/80'                             : 'text-slate-600 dark:text-slate-400';
     if (type === 'function')   return isSoft ? 'text-blue-700/80 dark:text-yellow-300/70 font-medium'                 : 'text-blue-700 dark:text-yellow-300 font-semibold';
     if (type === 'tag')        return isSoft ? 'text-rose-600/80 dark:text-rose-400/75 font-medium'                   : 'text-rose-700 dark:text-rose-400 font-semibold';
     if (type === 'attribute')  return isSoft ? 'text-violet-600/80 dark:text-violet-400/75 font-normal'               : 'text-violet-700 dark:text-violet-400 font-medium';
@@ -127,7 +127,7 @@
             return isSoft ? 'text-amber-700/75 dark:text-orange-400/75' : 'text-amber-700 dark:text-orange-400';
           }
           if (lowerVal.startsWith('//') || lowerVal.startsWith('/*')) {
-            return isSoft ? 'text-slate-500/85 dark:text-slate-600 italic' : 'text-slate-600 dark:text-slate-450 italic';
+            return isSoft ? 'text-slate-500/85 dark:text-slate-400 italic' : 'text-slate-600 dark:text-slate-450 italic';
           }
           if (lowerVal.startsWith('"') || lowerVal.startsWith("'") || lowerVal.startsWith('`')) {
             return isSoft ? 'text-emerald-700/80 dark:text-emerald-400/70 font-mono' : 'text-emerald-700 dark:text-emerald-400 font-mono';

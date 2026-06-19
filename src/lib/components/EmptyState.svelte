@@ -7,7 +7,7 @@
     <Sparkles class="w-6 h-6 animate-pulse" />
   </div>
   <h3 class="font-display font-semibold text-slate-900 dark:text-white text-lg">Compare texts side-by-side instantly</h3>
-  <p class="text-sm text-slate-500 dark:text-slate-500 max-w-sm mx-auto">
+  <p class="text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
     Paste your texts into the original and modified document text fields above. Or click the sample tabs above to see Juxta in action!
   </p>
 </div>
