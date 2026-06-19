@@ -33,7 +33,7 @@
         </Dialog.Title>
       </div>
       <Dialog.Close
-        class="text-xs font-semibold text-slate-400 transition hover:text-slate-600 dark:hover:text-white"
+        class="text-xs font-semibold text-slate-600 transition hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
       >
         ✕ Close
       </Dialog.Close>

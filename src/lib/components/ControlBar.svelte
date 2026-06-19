@@ -127,7 +127,7 @@
   <!-- Diff navigators -->
   {#if diffIndices.length > 0}
     <div class="flex items-center gap-3">
-      <span class="text-[11px] font-mono text-slate-400 dark:text-slate-550 uppercase tracking-wider">
+      <span class="text-[11px] font-mono text-slate-600 dark:text-slate-400 uppercase tracking-wider">
         {activeDiffNavIdx !== -1 ? diffIndices.indexOf(activeDiffNavIdx) + 1 : 0} of {diffIndices.length} differences
       </span>
       <div class="flex items-center gap-1">
@@ -135,6 +135,7 @@
           onclick={() => onjump('prev')}
           class="p-1.5 text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800 dark:hover:bg-slate-800 rounded transition"
           title="Jump to previous difference"
+          aria-label="Jump to previous difference"
           id="btn-prev-diff"
         >
           <ChevronUp class="w-4 h-4" />
@@ -143,6 +144,7 @@
           onclick={() => onjump('next')}
           class="p-1.5 text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800 dark:hover:bg-slate-800 rounded transition"
           title="Jump to next difference"
+          aria-label="Jump to next difference"
           id="btn-next-diff"
         >
           <ChevronDown class="w-4 h-4" />

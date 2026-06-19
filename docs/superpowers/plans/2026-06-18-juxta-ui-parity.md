@@ -4,7 +4,7 @@
 
 **Goal:** Port the entire React UI of the old diff tool into Svelte 5 components with full 1:1 feature parity, wired to the already-ported `src/lib` logic.
 
-**Architecture:** This is Plan 2 of 3 (Foundation done → **UI parity** → Productionization). The pure logic (`src/lib/diff`, `src/lib/export`) already exists and is tested. This plan decomposes the 2620-line `src/App.tsx` monolith into ~12 focused Svelte components plus a runes-based settings store, two new pure helper modules (stats, transforms), and a DOM download helper. The old React files stay in place, inert, until the Plan 3 cutover. Accessibility/responsiveness *refinement*, Playwright E2E, Docker, docs, and CI are all Plan 3 — this plan delivers a working, feature-complete Svelte app verified via `svelte-check` + `build` + targeted SSR/runtime smokes.
+**Architecture:** This is Plan 2 of 3 (Foundation done → **UI parity** → Productionization). The pure logic (`src/lib/diff`, `src/lib/export`) already exists and is tested. This plan decomposes the 2620-line `src/App.tsx` monolith into ~12 focused Svelte components plus a runes-based settings store, two new pure helper modules (stats, transforms), and a DOM download helper. The old React files stay in place, inert, until the Plan 3 cutover. Accessibility/responsiveness _refinement_, Playwright E2E, Docker, docs, and CI are all Plan 3 — this plan delivers a working, feature-complete Svelte app verified via `svelte-check` + `build` + targeted SSR/runtime smokes.
 
 **Tech Stack:** SvelteKit, Svelte 5 runes, Bun, Tailwind v4, shadcn-svelte/bits-ui (accessible chrome primitives), `@lucide/svelte` (icons), Svelte built-in transitions (replacing `motion/react`).
 
@@ -22,30 +22,32 @@
 
 ## React → Svelte 5 Conversion Guide (applies to every component task)
 
-| React | Svelte 5 |
-|-------|----------|
-| `const [x, setX] = useState(init)` (ephemeral) | `let x = $state(init)` |
-| persisted pref | import from `settings.svelte.ts` (Task 1); read/write `settings.x` |
-| `useMemo(() => f(), [deps])` | `const x = $derived.by(() => f())` (or `$derived(expr)`) |
-| `useRef(null)` + `ref={r}` | `let r: HTMLElement | undefined = $state()` + `bind:this={r}` |
-| `className=` | `class=` (keep class strings byte-identical) |
-| `onClick={h}` / `onChange` | `onclick={h}` / `oninput`/`onchange`; prefer `bind:value` for inputs/textareas |
-| conditional `{cond && <X/>}` | `{#if cond}<X/>{/if}` |
-| `.map(...)` list | `{#each items as item, idx (key)}` |
-| lucide-react `<Icon/>` | `@lucide/svelte` `<Icon/>` (same names) |
-| `motion.tr`/`AnimatePresence` | plain element + `transition:fly`/`fade` (reduced-motion gated) |
-| component props | `let { ... } = $props()` with a typed interface |
-| callbacks up to parent | callback props (e.g. `oncompare?: () => void`) — do NOT use `createEventDispatcher` |
+| React                                          | Svelte 5                                                                            |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------- |
+| `const [x, setX] = useState(init)` (ephemeral) | `let x = $state(init)`                                                              |
+| persisted pref                                 | import from `settings.svelte.ts` (Task 1); read/write `settings.x`                  |
+| `useMemo(() => f(), [deps])`                   | `const x = $derived.by(() => f())` (or `$derived(expr)`)                            |
+| `useRef(null)` + `ref={r}`                     | `let r: HTMLElement                                                                 | undefined = $state()`+`bind:this={r}` |
+| `className=`                                   | `class=` (keep class strings byte-identical)                                        |
+| `onClick={h}` / `onChange`                     | `onclick={h}` / `oninput`/`onchange`; prefer `bind:value` for inputs/textareas      |
+| conditional `{cond && <X/>}`                   | `{#if cond}<X/>{/if}`                                                               |
+| `.map(...)` list                               | `{#each items as item, idx (key)}`                                                  |
+| lucide-react `<Icon/>`                         | `@lucide/svelte` `<Icon/>` (same names)                                             |
+| `motion.tr`/`AnimatePresence`                  | plain element + `transition:fly`/`fade` (reduced-motion gated)                      |
+| component props                                | `let { ... } = $props()` with a typed interface                                     |
+| callbacks up to parent                         | callback props (e.g. `oncompare?: () => void`) — do NOT use `createEventDispatcher` |
 
 ---
 
 ### Task 1: Settings store (persisted prefs via runes)
 
 **Files:**
+
 - Create: `src/lib/state/settings.svelte.ts`
 - Create: `src/lib/state/persisted.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces:
   - `function createPersisted<T>(key: string, initial: T, storage?: Storage): { value: T }` — a rune-backed box whose `.value` getter/setter mirrors `localStorage[key]` (JSON-serialized). On the server (no `localStorage`), it holds `initial` in memory. The `storage` param exists for testing the pure serialize/parse path.
@@ -57,20 +59,20 @@
 - [ ] **Step 1: Write the failing test (pure serialize/parse)**
 
 ```ts
-import { test, expect } from 'bun:test';
-import { serialize, parseStored } from './settings.svelte';
+import { test, expect } from "bun:test";
+import { serialize, parseStored } from "./settings.svelte";
 
-test('serialize round-trips primitives', () => {
-  expect(parseStored(serialize('dark'), 'light')).toBe('dark');
+test("serialize round-trips primitives", () => {
+  expect(parseStored(serialize("dark"), "light")).toBe("dark");
   expect(parseStored(serialize(true), false)).toBe(true);
 });
 
-test('parseStored falls back to initial on null', () => {
-  expect(parseStored(null, 'auto')).toBe('auto');
+test("parseStored falls back to initial on null", () => {
+  expect(parseStored(null, "auto")).toBe("auto");
 });
 
-test('parseStored falls back to initial on malformed JSON', () => {
-  expect(parseStored('{not json', 42)).toBe(42);
+test("parseStored falls back to initial on malformed JSON", () => {
+  expect(parseStored("{not json", 42)).toBe(42);
 });
 ```
 
@@ -105,12 +107,14 @@ git commit -m "feat: runes-based persisted settings store"
 ### Task 2: Pure text helpers — stats + transforms (TDD)
 
 **Files:**
+
 - Create: `src/lib/text/stats.ts`
 - Create: `src/lib/text/stats.test.ts`
 - Create: `src/lib/text/transforms.ts`
 - Create: `src/lib/text/transforms.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces:
   - `stats.ts`: `interface TextStats { lines: number; words: number; chars: number; nonSpaceChars: number; readingTime: string; charsPerWord: number; densityPct: number }` and `function getStats(text: string): TextStats` — ported from `App.tsx:1381-1414`.
@@ -120,16 +124,16 @@ git commit -m "feat: runes-based persisted settings store"
 
 ```ts
 // stats.test.ts
-import { test, expect } from 'bun:test';
-import { getStats } from './stats';
-test('counts lines, words, chars', () => {
-  const s = getStats('hello world\nfoo');
+import { test, expect } from "bun:test";
+import { getStats } from "./stats";
+test("counts lines, words, chars", () => {
+  const s = getStats("hello world\nfoo");
   expect(s.lines).toBe(2);
   expect(s.words).toBe(3);
   expect(s.chars).toBe(15);
 });
-test('empty string is all zeros', () => {
-  const s = getStats('');
+test("empty string is all zeros", () => {
+  const s = getStats("");
   expect(s.lines).toBe(1); // split('\n') of '' is ['']
   expect(s.words).toBe(0);
 });
@@ -137,19 +141,26 @@ test('empty string is all zeros', () => {
 
 ```ts
 // transforms.test.ts
-import { test, expect } from 'bun:test';
-import { toLowerCaseText, sortLines, removeExcessWhitespace, replaceLineBreaks } from './transforms';
-test('lowercase', () => { expect(toLowerCaseText('AbC')).toBe('abc'); });
-test('sortLines orders case-insensitively', () => {
-  expect(sortLines('banana\nApple\ncherry')).toBe('Apple\nbanana\ncherry');
+import { test, expect } from "bun:test";
+import {
+  toLowerCaseText,
+  sortLines,
+  removeExcessWhitespace,
+  replaceLineBreaks,
+} from "./transforms";
+test("lowercase", () => {
+  expect(toLowerCaseText("AbC")).toBe("abc");
 });
-test('removeExcessWhitespace trims and collapses', () => {
-  expect(removeExcessWhitespace('  a   b  \n\n\n\nc ')).toBe('a b\n\nc');
+test("sortLines orders case-insensitively", () => {
+  expect(sortLines("banana\nApple\ncherry")).toBe("Apple\nbanana\ncherry");
 });
-test('replaceLineBreaks resolves special tokens', () => {
-  expect(replaceLineBreaks('a\nb', ', ')).toBe('a, b');
-  expect(replaceLineBreaks('a\nb', '\\t')).toBe('a\tb');
-  expect(replaceLineBreaks('a\nb', 'space')).toBe('a b');
+test("removeExcessWhitespace trims and collapses", () => {
+  expect(removeExcessWhitespace("  a   b  \n\n\n\nc ")).toBe("a b\n\nc");
+});
+test("replaceLineBreaks resolves special tokens", () => {
+  expect(replaceLineBreaks("a\nb", ", ")).toBe("a, b");
+  expect(replaceLineBreaks("a\nb", "\\t")).toBe("a\tb");
+  expect(replaceLineBreaks("a\nb", "space")).toBe("a b");
 });
 ```
 
@@ -177,18 +188,21 @@ git commit -m "feat: pure text stats and transform helpers"
 ### Task 3: Install UI deps + generate bits-ui/shadcn primitives
 
 **Files:**
+
 - Modify: `package.json` (add deps)
 - Create: shadcn-svelte component files under `src/lib/components/ui/**` (generated)
 - Create/Modify: `components.json`, and whatever `src/lib/utils.ts` the CLI needs
 - Modify: `src/app.css` (shadcn theme tokens, if the CLI adds them — keep existing `@import 'tailwindcss';`)
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces: importable accessible primitives used by later tasks — at minimum: `button`, `dialog`, `dropdown-menu`, `select`, `switch` (or `checkbox`), `toggle`/`toggle-group`, `tooltip`. Plus `@lucide/svelte` icons.
 
 - [ ] **Step 1: Add icon + util deps**
 
 Run:
+
 ```bash
 bun add @lucide/svelte
 bun add -d clsx tailwind-merge
@@ -201,9 +215,11 @@ Run `bunx shadcn-svelte@latest init` and accept defaults compatible with Tailwin
 - [ ] **Step 3: Generate the needed primitives**
 
 Run:
+
 ```bash
 bunx shadcn-svelte@latest add button dialog dropdown-menu select switch toggle toggle-group tooltip
 ```
+
 (If a component name differs in the installed CLI version, add the nearest equivalent and note it.)
 
 - [ ] **Step 4: Verify build**
@@ -222,15 +238,32 @@ git commit -m "build: add @lucide/svelte and shadcn-svelte/bits-ui primitives"
 ### Task 4: EditorPane component
 
 **Files:**
+
 - Create: `src/lib/components/EditorPane.svelte`
 
 **Interfaces:**
+
 - Consumes: `getStats` (Task 2), `toLowerCaseText`/`sortLines`/`removeExcessWhitespace`/`replaceLineBreaks` (Task 2), `@lucide/svelte` icons (`Copy`, `Check`, `Clock`, `BarChart3`).
 - Produces: `EditorPane` with props:
+
   ```ts
-  let { value = $bindable(), side, label, dotClass, placeholder, emptyHint }:
-    { value: string; side: 'left' | 'right'; label: string; dotClass: string; placeholder: string; emptyHint: string } = $props();
+  let {
+    value = $bindable(),
+    side,
+    label,
+    dotClass,
+    placeholder,
+    emptyHint,
+  }: {
+    value: string;
+    side: "left" | "right";
+    label: string;
+    dotClass: string;
+    placeholder: string;
+    emptyHint: string;
+  } = $props();
   ```
+
   It owns its ephemeral UI state (copied flag, replace-dropdown open, replace separator). It mutates `value` via `bind:value` on the `<textarea>` and via the transform buttons (e.g. `value = sortLines(value)`).
 
 - [ ] **Step 1: Implement the component**
@@ -257,19 +290,33 @@ git commit -m "feat: EditorPane component with stats, transforms, copy"
 ### Task 5: TopNav component (brand, samples, actions, theme)
 
 **Files:**
+
 - Create: `src/lib/components/TopNav.svelte`
 - Create: `src/lib/samples.ts`
 
 **Interfaces:**
+
 - Consumes: `settings` (theme), `@lucide/svelte` (`ArrowRightLeft`, `Code`, `FileText`, `Sparkles`, `BookOpen`, `Trash2`, `Download`, `Keyboard`, `Moon`, `Sun`).
 - Produces:
   - `samples.ts`: `export const SAMPLES` ported verbatim from `App.tsx:227-405` (the `code/prose/html/css/json` `{name,left,right}` map) and `export type SampleKey = keyof typeof SAMPLES`.
   - `TopNav` with callback props:
+
     ```ts
-    let { onloadsample, onclear, onswap, onexport, onshowshortcuts }:
-      { onloadsample: (k: SampleKey) => void; onclear: () => void; onswap: () => void;
-        onexport: (fmt: 'html'|'md'|'json'|'txt') => void; onshowshortcuts: () => void } = $props();
+    let {
+      onloadsample,
+      onclear,
+      onswap,
+      onexport,
+      onshowshortcuts,
+    }: {
+      onloadsample: (k: SampleKey) => void;
+      onclear: () => void;
+      onswap: () => void;
+      onexport: (fmt: "html" | "md" | "json" | "txt") => void;
+      onshowshortcuts: () => void;
+    } = $props();
     ```
+
     Theme toggle reads/writes `settings.theme` directly.
 
 - [ ] **Step 1: Create `samples.ts`** — copy the `SAMPLES` object verbatim from `App.tsx:227-405`.
@@ -290,15 +337,26 @@ git commit -m "feat: TopNav with samples, actions, theme toggle"
 ### Task 6: ControlBar component (view + display options + diff nav)
 
 **Files:**
+
 - Create: `src/lib/components/ControlBar.svelte`
 
 **Interfaces:**
+
 - Consumes: `settings` (compareMode, syncScroll, showWhitespace, showLineNumbers, lineWrap, highlightMode), `@lucide/svelte` (`Columns2`, `Rows2`, `WrapText`, `ChevronUp`, `ChevronDown`).
 - Produces: `ControlBar` with props:
+
   ```ts
-  let { diffIndices, activeDiffNavIdx, onjump }:
-    { diffIndices: number[]; activeDiffNavIdx: number; onjump: (dir: 'next'|'prev') => void } = $props();
+  let {
+    diffIndices,
+    activeDiffNavIdx,
+    onjump,
+  }: {
+    diffIndices: number[];
+    activeDiffNavIdx: number;
+    onjump: (dir: "next" | "prev") => void;
+  } = $props();
   ```
+
   All toggles read/write `settings.*` directly.
 
 - [ ] **Step 1: Implement** — port `App.tsx:1910-2047`: split/unified segmented buttons (`settings.compareMode`), the sync-scroll / whitespace / line-numbers / wrap checkboxes, the word/char segmented buttons (`settings.highlightMode`), and the prev/next diff buttons + `{diffIndices.indexOf(activeDiffNavIdx)+1} of {diffIndices.length}` counter (shown only when `diffIndices.length > 0`), calling `onjump('prev'|'next')`. Keep IDs/classes.
@@ -317,17 +375,34 @@ git commit -m "feat: ControlBar with view modes, display toggles, diff nav"
 ### Task 7: AdvancedBar component (search + syntax/lang/scheme/layout + auto-compare)
 
 **Files:**
+
 - Create: `src/lib/components/AdvancedBar.svelte`
 
 **Interfaces:**
+
 - Consumes: `settings` (syntaxHighlighting, languageMode, syntaxScheme, responsiveLayout, autoCompare), `@lucide/svelte` (`Search`, `ChevronUp`, `ChevronDown`, `RefreshCw`).
 - Produces: `AdvancedBar` with props:
+
   ```ts
-  let { searchQuery = $bindable(), searchMatches, activeSearchIdx, detectedLanguageLeft,
-        isDirty, onsearchjump, onclearsearch, oncompare }:
-    { searchQuery: string; searchMatches: number[]; activeSearchIdx: number;
-      detectedLanguageLeft: string; isDirty: boolean;
-      onsearchjump: (dir: 'next'|'prev') => void; onclearsearch: () => void; oncompare: () => void } = $props();
+  let {
+    searchQuery = $bindable(),
+    searchMatches,
+    activeSearchIdx,
+    detectedLanguageLeft,
+    isDirty,
+    onsearchjump,
+    onclearsearch,
+    oncompare,
+  }: {
+    searchQuery: string;
+    searchMatches: number[];
+    activeSearchIdx: number;
+    detectedLanguageLeft: string;
+    isDirty: boolean;
+    onsearchjump: (dir: "next" | "prev") => void;
+    onclearsearch: () => void;
+    oncompare: () => void;
+  } = $props();
   ```
 
 - [ ] **Step 1: Implement** — port `App.tsx:2050-2245`: the search input (`id="search-diff-input"`, `bind:value={searchQuery}`, Enter→`onsearchjump('next')`, Shift+Enter→`onsearchjump('prev')`), the `{activeSearchIdx+1}/{searchMatches.length}` counter, clear-search (`onclearsearch`), prev/next match buttons; the syntax-highlight checkbox, language `<select>` (`settings.languageMode`) + active-lang badge (`detectedLanguageLeft.toUpperCase()`, shown when `languageMode==='auto'`), scheme `<select>` (`settings.syntaxScheme`), layout adaptive/fixed segmented buttons (`settings.responsiveLayout`), auto-compare checkbox (`settings.autoCompare`), and the **Compare Now** button (shown when `!settings.autoCompare`, pulses when `isDirty`, calls `oncompare`). Keep IDs/classes.
@@ -346,16 +421,32 @@ git commit -m "feat: AdvancedBar with search, syntax/layout options, manual comp
 ### Task 8: DiffLine renderer component (the core line renderer)
 
 **Files:**
+
 - Create: `src/lib/components/DiffLine.svelte`
 
 **Interfaces:**
+
 - Consumes: `tokenizeLanguage` + `Lang`/`SegmentType` (`$lib/diff/tokenizer`), `settings` (syntaxHighlighting, syntaxScheme, showWhitespace, highlightMode), `DiffWord` (`$lib/diff/engine`).
 - Produces: `DiffLine` with props:
+
   ```ts
-  let { text, rowType, side, words, lang, searchQuery }:
-    { text: string | undefined; rowType: 'equal'|'delete'|'insert'|'modify'; side: 'left'|'right';
-      words?: DiffWord[]; lang: Lang; searchQuery: string } = $props();
+  let {
+    text,
+    rowType,
+    side,
+    words,
+    lang,
+    searchQuery,
+  }: {
+    text: string | undefined;
+    rowType: "equal" | "delete" | "insert" | "modify";
+    side: "left" | "right";
+    words?: DiffWord[];
+    lang: Lang;
+    searchQuery: string;
+  } = $props();
   ```
+
   Renders one line's inner HTML: the striped empty-cell when `text===undefined`; word/char highlight spans when `words` present; syntax tokens (`tokenizeLanguage`) for `equal` rows when `settings.syntaxHighlighting`; otherwise plain text — with search-term `<mark>` overlay in all text paths, and whitespace `·` substitution when `settings.showWhitespace`.
 
 - [ ] **Step 1: Implement** — port the logic of `renderLineCode` (`App.tsx:756-878`) and the segment color mapping of `renderSegmentWithSearch` (`App.tsx:155-224`) into this component. Recreate `highlightSearches` (the search-`<mark>` splitter, lines 771–812) as an inline `{#each}` over computed parts or a small local helper. Preserve every color class and the `<mark className="bg-amber-250 dark:bg-amber-500/80 ...">` styling. The empty-cell striped `<div>` (line 764) keeps its exact gradient classes.
@@ -376,18 +467,34 @@ git commit -m "feat: DiffLine renderer (syntax + word/char + search layering)"
 ### Task 9: SplitView component
 
 **Files:**
+
 - Create: `src/lib/components/SplitView.svelte`
 
 **Interfaces:**
+
 - Consumes: `DiffLine` (Task 8), `settings` (responsiveLayout, showLineNumbers, lineWrap), `AlignedDiffRow` (`$lib/diff/engine`), `svelte/transition` (`fly`), `prefers-reduced-motion` (via `import { prefersReducedMotion } from 'svelte/motion'` or a media-query check).
 - Produces: `SplitView` with props:
+
   ```ts
-  let { rows, activeDiffNavIdx, detectedLanguageLeft, detectedLanguageRight, searchQuery,
-        leftScroll = $bindable(), rightScroll = $bindable() }:
-    { rows: AlignedDiffRow[]; activeDiffNavIdx: number; detectedLanguageLeft: Lang;
-      detectedLanguageRight: Lang; searchQuery: string;
-      leftScroll?: HTMLDivElement; rightScroll?: HTMLDivElement } = $props();
+  let {
+    rows,
+    activeDiffNavIdx,
+    detectedLanguageLeft,
+    detectedLanguageRight,
+    searchQuery,
+    leftScroll = $bindable(),
+    rightScroll = $bindable(),
+  }: {
+    rows: AlignedDiffRow[];
+    activeDiffNavIdx: number;
+    detectedLanguageLeft: Lang;
+    detectedLanguageRight: Lang;
+    searchQuery: string;
+    leftScroll?: HTMLDivElement;
+    rightScroll?: HTMLDivElement;
+  } = $props();
   ```
+
   Exposes `leftScroll`/`rightScroll` via `bind:this` so the parent wires scroll sync. Fires no events; the parent attaches `onscroll` handlers to the bound elements (or pass `onleftscroll`/`onrightscroll` callback props — choose one and document it).
 
 - [ ] **Step 1: Implement** — port `App.tsx:2265-2385`: the two scroll columns (`bind:this={leftScroll}` / `{rightScroll}`), the `table-fixed` structure, per-row background classes by `row.type` (left-side and inverted right-side palettes from the map), the `ring-2 ring-indigo-500/70 ring-inset` active-nav highlight when `idx===activeDiffNavIdx`, the `id="diff-row-{idx}"`, line-number gutters (when `settings.showLineNumbers`), and `<DiffLine .../>` for content. Replace `motion.tr` with `transition:fly={{ x: side==='left' ? -6 : 6, duration: reduceMotion ? 0 : 150 }}`. Use the `settings.responsiveLayout` grid expression.
@@ -406,15 +513,28 @@ git commit -m "feat: SplitView with scroll-sync hooks and row transitions"
 ### Task 10: UnifiedView component
 
 **Files:**
+
 - Create: `src/lib/components/UnifiedView.svelte`
 
 **Interfaces:**
+
 - Consumes: `DiffLine` (Task 8), `settings` (showLineNumbers, lineWrap), `AlignedDiffRow`, `svelte/transition` (`fly`).
 - Produces: `UnifiedView` with props:
+
   ```ts
-  let { rows, activeDiffNavIdx, detectedLanguageLeft, detectedLanguageRight, searchQuery }:
-    { rows: AlignedDiffRow[]; activeDiffNavIdx: number; detectedLanguageLeft: Lang;
-      detectedLanguageRight: Lang; searchQuery: string } = $props();
+  let {
+    rows,
+    activeDiffNavIdx,
+    detectedLanguageLeft,
+    detectedLanguageRight,
+    searchQuery,
+  }: {
+    rows: AlignedDiffRow[];
+    activeDiffNavIdx: number;
+    detectedLanguageLeft: Lang;
+    detectedLanguageRight: Lang;
+    searchQuery: string;
+  } = $props();
   ```
 
 - [ ] **Step 1: Implement** — port `App.tsx:2387-2510`: single scroll container; `modify` rows render two stacked rows (delete then insert) inside one `id="diff-row-{idx}"` wrapper with `-`/`+` symbol columns and the rose/emerald palettes; `equal`/`delete`/`insert` render a single row with two line-number columns + symbol column + `<DiffLine>`. Replace `motion` with `transition:fly={{ y: 4, duration: reduceMotion ? 0 : 150 }}`. Keep classes.
@@ -433,10 +553,12 @@ git commit -m "feat: UnifiedView with stacked modify rows and transitions"
 ### Task 11: StatusFooter + EmptyState components
 
 **Files:**
+
 - Create: `src/lib/components/StatusFooter.svelte`
 - Create: `src/lib/components/EmptyState.svelte`
 
 **Interfaces:**
+
 - Consumes: `@lucide/svelte` (`Clock`, `Sparkles`).
 - Produces:
   - `StatusFooter` props: `{ additions: number; deletions: number; modifications: number; similarityPercentage: number; parseTimeMs: number }` — ported from `App.tsx:2519-2549` (insertions/deletions/modifications/congruency + `DIFF ALGORITHM: MYERS_OPTIMIZED_V2` + parse time).
@@ -458,11 +580,13 @@ git commit -m "feat: StatusFooter analytics bar and EmptyState"
 ### Task 12: ShortcutsModal (bits-ui dialog) + keyboard shortcuts action + export download
 
 **Files:**
+
 - Create: `src/lib/components/ShortcutsModal.svelte`
 - Create: `src/lib/actions/shortcuts.ts`
 - Create: `src/lib/export/download.ts`
 
 **Interfaces:**
+
 - Consumes: bits-ui `Dialog` (Task 3), `@lucide/svelte` (`Keyboard`).
 - Produces:
   - `ShortcutsModal` props: `{ open = $bindable() }: { open: boolean }` — accessible dialog (focus trap + Escape come from bits-ui) listing the 9 shortcuts from `App.tsx:2574-2602`.
@@ -485,9 +609,11 @@ git commit -m "feat: accessible shortcuts modal, keyboard action, download helpe
 ### Task 13: Compose the full app in +page.svelte (integration)
 
 **Files:**
+
 - Modify: `src/routes/+page.svelte` (replace the smoke page entirely)
 
 **Interfaces:**
+
 - Consumes: every component (Tasks 4–12), `settings` (Task 1), `diffLines`/`alignDiff` (`$lib/diff/engine`), `detectLanguage` (`$lib/diff/detect`), the export builders (`$lib/export`) + `download` (Task 12), `SAMPLES` (Task 5).
 - Produces: the finished single-page app — feature-complete parity with `App.tsx`.
 
@@ -518,6 +644,7 @@ git commit -m "feat: compose full Juxta app with feature parity"
 ## Self-Review
 
 **1. Spec coverage (feature-parity checklist §5 of the design spec):**
+
 - Split & unified views → Tasks 9, 10. Scroll sync → Task 9 hooks + Task 13 wiring. ✓
 - 5-language syntax highlighting + auto-detect → Task 8 (uses ported tokenizer/detect). ✓
 - word/char inline diff → Task 8 (+ engine highlightMode). ✓
@@ -533,7 +660,7 @@ git commit -m "feat: compose full Juxta app with feature parity"
 - light/dark theme → Task 5 toggle + Task 13 effect. ✓
 - stats (adds/dels/mods/similarity/parse time) → Task 11 footer + Task 13 derived; per-pane mini-stats → Task 4. ✓
 - adaptive vs fixed-split layout → Tasks 6/7 (selector) + Tasks 9/10/13 (grid classes). ✓
-- Deferred to Plan 3 (correctly out of this plan): a11y *refinement* + audits, Playwright/axe, Docker, OSS docs, CI, removal of old React files.
+- Deferred to Plan 3 (correctly out of this plan): a11y _refinement_ + audits, Playwright/axe, Docker, OSS docs, CI, removal of old React files.
 
 **2. Placeholder scan:** No TBD/TODO. Component tasks cite exact `App.tsx` line ranges (the same verbatim-port pattern Plan 1 used successfully) and define each component's prop interface explicitly; pure-logic tasks embed full test code. The two genuinely-ambiguous CLI steps (Task 3 shadcn init, Task 4/8/13 smokes) give concrete commands + the Plan-1 "resolve version & report" latitude.
 

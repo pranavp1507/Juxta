@@ -60,6 +60,7 @@
             onclick={() => onclearsearch()}
             class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xs font-semibold px-1"
             title="Clear search"
+            aria-label="Clear search"
           >
             ✕
           </button>
@@ -73,6 +74,7 @@
           onclick={() => onsearchjump('prev')}
           class="p-1 text-slate-500 bg-white hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded transition"
           title="Previous match"
+          aria-label="Previous match"
         >
           <ChevronUp class="w-3.5 h-3.5" />
         </button>
@@ -80,6 +82,7 @@
           onclick={() => onsearchjump('next')}
           class="p-1 text-slate-500 bg-white hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded transition"
           title="Next match"
+          aria-label="Next match"
         >
           <ChevronDown class="w-3.5 h-3.5" />
         </button>
@@ -108,12 +111,13 @@
       {#if settings.syntaxHighlighting}
         <div class="flex flex-wrap items-center gap-2.5 pl-3 border-l border-slate-250 dark:border-slate-800">
           <div class="flex items-center gap-1.5">
-            <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">Lang:</span>
+            <span class="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400">Lang:</span>
             <select
               value={settings.languageMode}
               onchange={(e) => settings.languageMode = e.currentTarget.value as 'auto' | 'ts' | 'html' | 'css' | 'json'}
               class="px-2 py-0.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-850 border border-slate-250 dark:border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 transition cursor-pointer shadow-sm text-[11px]"
               id="opt-language-mode"
+              aria-label="Syntax language mode"
             >
               <option value="auto">Auto-Detect</option>
               <option value="html">HTML</option>
@@ -122,7 +126,7 @@
               <option value="ts">JS / TS / Java</option>
             </select>
             {#if settings.languageMode === 'auto'}
-              <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono bg-slate-200/50 dark:bg-slate-900 px-1.5 py-0.5 rounded italic">
+              <span class="text-[10px] text-slate-700 dark:text-slate-400 font-mono bg-slate-200/50 dark:bg-slate-900 px-1.5 py-0.5 rounded italic">
                 active: {detectedLanguageLeft.toUpperCase()}
               </span>
             {/if}
@@ -131,12 +135,13 @@
           <div class="hidden sm:block h-3.5 w-px bg-slate-250 dark:bg-slate-800"></div>
 
           <div class="flex items-center gap-1.5">
-            <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">Scheme:</span>
+            <span class="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400">Scheme:</span>
             <select
               value={settings.syntaxScheme}
               onchange={(e) => settings.syntaxScheme = e.currentTarget.value as 'high-contrast' | 'soft'}
               class="px-2 py-0.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-850 border border-slate-250 dark:border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 transition cursor-pointer shadow-sm text-[11px]"
               id="opt-syntax-scheme"
+              aria-label="Syntax colour scheme"
             >
               <option value="high-contrast">High Contrast</option>
               <option value="soft">Soft</option>
@@ -150,7 +155,7 @@
 
     <!-- Responsive Layout selection -->
     <div class="flex items-center gap-1.5">
-      <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
+      <span class="text-[11px] font-medium text-slate-600 dark:text-slate-400 flex items-center gap-1">
         Layout:
       </span>
       <div class="flex items-center bg-slate-200/60 dark:bg-slate-900 p-0.5 rounded-lg border border-slate-200 dark:border-slate-800">
