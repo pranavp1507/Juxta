@@ -13,6 +13,7 @@ test('theme toggle persists across reload', async ({ page }) => {
 test('Alt+N jumps to the next diff', async ({ page }) => {
   await page.goto('/');
   await page.locator('#load-sample-code').click();
+  await expect(page.locator('[id^="diff-row-"]').first()).toBeVisible();
   await page.keyboard.press('Alt+n');
-  await expect(page.locator('[class*="ring-indigo-500"]').first()).toBeVisible();
+  await expect(page.locator('[id^="diff-row-"][class*="ring-indigo-500"]').first()).toBeVisible();
 });
