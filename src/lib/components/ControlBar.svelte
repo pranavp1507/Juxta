@@ -135,6 +135,7 @@
           onclick={() => onjump('prev')}
           class="p-1.5 text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800 dark:hover:bg-slate-800 rounded transition"
           title="Jump to previous difference"
+          aria-label="Jump to previous difference"
           id="btn-prev-diff"
         >
           <ChevronUp class="w-4 h-4" />
@@ -143,6 +144,7 @@
           onclick={() => onjump('next')}
           class="p-1.5 text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800 dark:hover:bg-slate-800 rounded transition"
           title="Jump to next difference"
+          aria-label="Jump to next difference"
           id="btn-next-diff"
         >
           <ChevronDown class="w-4 h-4" />

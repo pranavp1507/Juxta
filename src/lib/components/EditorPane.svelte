@@ -136,9 +136,10 @@
               {/each}
             </div>
             <div class="mb-2">
-              <label class="block text-[9px] font-semibold text-slate-400 dark:text-slate-500 mb-1">Custom String:</label>
+              <label for="replace-sep-input-{side}" class="block text-[9px] font-semibold text-slate-400 dark:text-slate-500 mb-1">Custom String:</label>
               <input
                 type="text"
+                id="replace-sep-input-{side}"
                 value={replaceSep === 'space' || replaceSep === '\\t' ? '' : replaceSep}
                 oninput={(e) => { replaceSep = (e.target as HTMLInputElement).value; }}
                 placeholder="e.g. , "
@@ -190,6 +191,7 @@
         onclick={copyText}
         class="absolute top-4 right-4 p-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-755 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded transition"
         title="Copy input text"
+        aria-label="Copy input text"
       >
         {#if copied}
           <Check class="w-3.5 h-3.5 text-emerald-500" />

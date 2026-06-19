@@ -60,6 +60,7 @@
             onclick={() => onclearsearch()}
             class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xs font-semibold px-1"
             title="Clear search"
+            aria-label="Clear search"
           >
             ✕
           </button>
@@ -73,6 +74,7 @@
           onclick={() => onsearchjump('prev')}
           class="p-1 text-slate-500 bg-white hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded transition"
           title="Previous match"
+          aria-label="Previous match"
         >
           <ChevronUp class="w-3.5 h-3.5" />
         </button>
@@ -80,6 +82,7 @@
           onclick={() => onsearchjump('next')}
           class="p-1 text-slate-500 bg-white hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded transition"
           title="Next match"
+          aria-label="Next match"
         >
           <ChevronDown class="w-3.5 h-3.5" />
         </button>
