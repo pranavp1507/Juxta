@@ -27,7 +27,7 @@
       <ArrowRightLeft class="w-4 h-4 text-white" />
     </div>
     <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Juxta</span>
-    <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 ml-2">v2.5.0</span>
+    <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 ml-2">v2.5.0</span>
   </div>
 
   <div class="flex items-center gap-3">

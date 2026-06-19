@@ -43,7 +43,7 @@
 <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xl">
   <div class="px-4 py-2 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500 uppercase select-none flex justify-between">
     <span>Unified/Inline Chronological View</span>
-    <span class="font-mono text-[10px] tracking-wider text-indigo-500 uppercase">Interactive Stack</span>
+    <span class="font-mono text-[10px] tracking-wider text-indigo-600 uppercase">Interactive Stack</span>
   </div>
 <div class="overflow-auto max-h-[600px] bg-slate-50/50 dark:bg-slate-950/20">
   <table class="w-full border-collapse table-fixed">
@@ -60,14 +60,14 @@
           <!-- Original Line deletion -->
           <tr class="font-mono text-xs leading-6 bg-rose-50/40 border-l-[3px] border-rose-500/70 dark:bg-rose-950/10 border-b border-slate-100/50 dark:border-slate-900/10">
             {#if settings.showLineNumbers}
-              <td class="w-12 text-right pr-2 select-none text-[10px] text-slate-400 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35">
+              <td class="w-12 text-right pr-2 select-none text-[10px] text-slate-600 dark:text-slate-500 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35">
                 {row.leftLineNum}
               </td>
               <td class="w-12 text-right pr-2 select-none text-[10px] text-rose-500 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35">
                 -
               </td>
             {/if}
-            <td class={`pl-4 pr-2 ${wrapClass} align-top text-rose-900 dark:text-rose-450 pt-1 text-[12.5px]`}>
+            <td class={`pl-4 pr-2 ${wrapClass} align-top text-rose-900 dark:text-rose-450 pt-1 text-[12.5px]`} tabindex={settings.lineWrap ? undefined : 0}>
               <DiffLine
                 text={row.leftContent}
                 rowType="delete"
@@ -85,11 +85,11 @@
               <td class="w-12 text-right pr-2 select-none text-[10px] text-emerald-500 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35">
                 +
               </td>
-              <td class="w-12 text-right pr-2 select-none text-[10px] text-slate-400 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35">
+              <td class="w-12 text-right pr-2 select-none text-[10px] text-slate-600 dark:text-slate-500 border-r border-slate-200/50 bg-slate-100/35 dark:bg-slate-900/35">
                 {row.rightLineNum}
               </td>
             {/if}
-            <td class={`pl-4 pr-2 ${wrapClass} align-top text-emerald-900 dark:text-emerald-450 pt-1 text-[12.5px]`}>
+            <td class={`pl-4 pr-2 ${wrapClass} align-top text-emerald-900 dark:text-emerald-450 pt-1 text-[12.5px]`} tabindex={settings.lineWrap ? undefined : 0}>
               <DiffLine
                 text={row.rightContent}
                 rowType="insert"
@@ -137,7 +137,7 @@
             <td class="w-8 text-center select-none font-bold font-mono text-[11px] opacity-40 text-slate-500 dark:text-slate-400 align-top pt-1">
               {symbol}
             </td>
-            <td class={`pl-4 pr-2 ${wrapClass} align-top ${textClass} pt-1 text-[12.5px]`}>
+            <td class={`pl-4 pr-2 ${wrapClass} align-top ${textClass} pt-1 text-[12.5px]`} tabindex={settings.lineWrap ? undefined : 0}>
               <DiffLine
                 text={useLeft ? row.leftContent : row.rightContent}
                 rowType={row.type}

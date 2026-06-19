@@ -55,7 +55,7 @@
       <span class="w-2 h-2 rounded-full {dotClass}"></span>
       {label}
     </span>
-    <span class="font-mono text-[11px] text-slate-400 lowercase">Active Workspace</span>
+    <span class="font-mono text-[11px] text-slate-600 dark:text-slate-400 lowercase">Active Workspace</span>
   </div>
 
   <!-- Mini-Stats Badges Row -->
@@ -179,7 +179,7 @@
 
     {#if value === ''}
       <div class="absolute bottom-6 right-6 flex items-center gap-2 pointer-events-none select-none">
-        <span class="text-[11px] font-mono text-slate-300 dark:text-slate-600 bg-slate-50 dark:bg-slate-950/40 px-2 py-1 rounded">
+        <span class="text-[11px] font-mono text-slate-500 dark:text-slate-600 bg-slate-50 dark:bg-slate-950/40 px-2 py-1 rounded">
           {emptyHint}
         </span>
       </div>

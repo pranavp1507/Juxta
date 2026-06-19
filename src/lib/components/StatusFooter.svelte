@@ -24,14 +24,14 @@
       <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
       <span>{modifications} Modifications</span>
     </div>
-    <div class="flex items-center gap-2 text-slate-400 dark:text-slate-500 font-mono text-[11px] font-normal lowercase">
+    <div class="flex items-center gap-2 text-slate-500 dark:text-slate-500 font-mono text-[11px] font-normal lowercase">
       &bull; congruency {similarityPercentage}%
     </div>
   </div>
 
   <div class="flex flex-wrap items-center gap-4 sm:gap-6">
     <div class="flex items-center gap-2">
-      <span class="text-[10px] text-slate-450 dark:text-slate-500 uppercase font-mono">DIFF ALGORITHM:</span>
+      <span class="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-mono">DIFF ALGORITHM:</span>
       <span class="text-xs font-bold text-slate-600 dark:text-slate-300 select-all font-mono">MYERS_OPTIMIZED_V2</span>
     </div>
     <div class="hidden sm:block h-4 w-px bg-slate-200 dark:bg-slate-800"></div>

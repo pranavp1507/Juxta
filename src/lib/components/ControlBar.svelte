@@ -127,7 +127,7 @@
   <!-- Diff navigators -->
   {#if diffIndices.length > 0}
     <div class="flex items-center gap-3">
-      <span class="text-[11px] font-mono text-slate-400 dark:text-slate-550 uppercase tracking-wider">
+      <span class="text-[11px] font-mono text-slate-600 dark:text-slate-400 uppercase tracking-wider">
         {activeDiffNavIdx !== -1 ? diffIndices.indexOf(activeDiffNavIdx) + 1 : 0} of {diffIndices.length} differences
       </span>
       <div class="flex items-center gap-1">
