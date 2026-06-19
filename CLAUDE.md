@@ -44,7 +44,7 @@ bun run test:e2e     # Playwright E2E + axe accessibility scans (12 tests)
 ## Conventions & gotchas
 
 - **Bun is the runtime** — use `bun` / `bun run` for all scripts; `bun test` for unit tests; `node build/` to run the production server.
-- **SvelteKit adapter-node** — production output is `build/index.js`; configure `PORT`, `HOST`, and `ORIGIN` env vars for self-hosting (see `.env.example` and `docker-compose.yml`).
+- **SvelteKit adapter-node** — production output is `build/index.js`; configure `PORT`, `HOST`, and `ORIGIN` env vars for self-hosting (see `docker-compose.yml`).
 - Tailwind v4 is wired through `@tailwindcss/vite` (no `tailwind.config.js`); styles live in `src/app.css` and inline class names.
 - **`$lib` alias** maps to `src/lib/`; `src/lib/diff/engine` is the canonical diff import (not `src/utils/diff` — that React-era file is gone).
 - Unit tests live alongside their modules (`*.test.ts`) and are discovered automatically by `bun test`.
@@ -61,7 +61,7 @@ Every non-trivial change to this project should run through the phased workflow 
 
 - **octopoda**: `octopoda_get_goal`, `octopoda_get_context`, `octopoda_recall` (and `octopoda_recall_similar` on the task topic) to load prior goals and decisions for this project.
 - **memory**: `read_graph` / `search_nodes` to pull persisted entities (architecture facts, past gotchas) from `.claude/project-context.jsonl`.
-- **git**: `git_status` + `git_log` to see working state. ⚠️ This repo is **not yet a git repository** — run `git init` (or ask) before any git MCP step; the git MCP tools require an initialized repo.
+- **git**: `git_status` + `git_log` to see working state. The repo's default branch is `main`; work on a feature branch.
 
 ### Phase 1 — Understand & design
 
@@ -70,7 +70,7 @@ Every non-trivial change to this project should run through the phased workflow 
 
 ### Phase 2 — Explore the code
 
-- **tree-sitter**: prefer over plain grep for this codebase — [src/App.tsx](src/App.tsx) is a ~2600-line single component. Use `register_project_tool` once, then `get_symbols`, `get_ast`, `find_usage`, `find_text` to locate the exact function/state/handler to touch.
+- **tree-sitter**: prefer over plain grep for navigating the code — the app is split across `src/lib/diff/` (engine/tokenizer/detect), `src/lib/components/` (Svelte components), and `src/routes/+page.svelte` (composition). Use `register_project_tool` once, then `get_symbols`, `get_ast`, `find_usage`, `find_text` to locate the exact function/state/handler to touch.
 - **karpathy-guidelines**: confirm the assumption ("this is the only place X is set") with `find_usage` instead of guessing.
 
 ### Phase 3 — Plan & record intent
@@ -106,4 +106,4 @@ Every non-trivial change to this project should run through the phased workflow 
 | Navigate Svelte components by AST | tree-sitter MCP |
 | Per-session graph memory (`.claude/project-context.jsonl`) | memory MCP |
 | Cross-session goals / decisions / recall | octopoda MCP |
-| Branch, diff, commit | git MCP (needs `git init` first) |
+| Branch, diff, commit | git MCP |
