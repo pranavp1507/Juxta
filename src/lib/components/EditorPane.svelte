@@ -83,6 +83,7 @@
   <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-1.5 bg-slate-50 border-b border-slate-200 dark:bg-slate-900 dark:border-slate-800" id="{side}-text-operations-bar">
     <div class="flex flex-wrap items-center gap-1.5">
       <button
+        type="button"
         onclick={() => { value = toLowerCaseText(value); }}
         class="px-2 py-1 text-[11px] font-medium text-slate-600 dark:text-slate-350 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded transition shadow-2xs"
         id="btn-lowercase-{side}"
@@ -91,6 +92,7 @@
         a-z lowercase
       </button>
       <button
+        type="button"
         onclick={() => { value = sortLines(value); }}
         class="px-2 py-1 text-[11px] font-medium text-slate-600 dark:text-slate-350 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded transition shadow-2xs"
         id="btn-sort-{side}"
@@ -99,6 +101,7 @@
         Sort Lines
       </button>
       <button
+        type="button"
         onclick={() => { value = removeExcessWhitespace(value); }}
         class="px-2 py-1 text-[11px] font-medium text-slate-600 dark:text-slate-350 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded transition shadow-2xs"
         id="btn-whitespace-{side}"
@@ -183,6 +186,7 @@
 
     {#if value !== ''}
       <button
+        type="button"
         onclick={copyText}
         class="absolute top-4 right-4 p-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-755 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded transition"
         title="Copy input text"

@@ -40,6 +40,11 @@
   );
 </script>
 
+<div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-xl">
+  <div class="px-4 py-2 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500 uppercase select-none flex justify-between">
+    <span>Unified/Inline Chronological View</span>
+    <span class="font-mono text-[10px] tracking-wider text-indigo-500 uppercase">Interactive Stack</span>
+  </div>
 <div class="overflow-auto max-h-[600px] bg-slate-50/50 dark:bg-slate-950/20">
   <table class="w-full border-collapse table-fixed">
     {#each rows as row, idx (idx)}
@@ -65,7 +70,7 @@
             <td class={`pl-4 pr-2 ${wrapClass} align-top text-rose-900 dark:text-rose-450 pt-1 text-[12.5px]`}>
               <DiffLine
                 text={row.leftContent}
-                rowType="modify"
+                rowType="delete"
                 side="left"
                 words={row.leftWords}
                 lang={detectedLanguageLeft}
@@ -87,7 +92,7 @@
             <td class={`pl-4 pr-2 ${wrapClass} align-top text-emerald-900 dark:text-emerald-450 pt-1 text-[12.5px]`}>
               <DiffLine
                 text={row.rightContent}
-                rowType="modify"
+                rowType="insert"
                 side="right"
                 words={row.rightWords}
                 lang={detectedLanguageRight}
@@ -147,4 +152,5 @@
       {/if}
     {/each}
   </table>
+</div>
 </div>

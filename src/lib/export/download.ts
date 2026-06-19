@@ -3,6 +3,7 @@
  * Mirrors the Blob/anchor logic from App.tsx:1314-1322.
  */
 export function download(filename: string, content: string, mime: string): void {
+  if (typeof document === 'undefined') return;
   const blob = new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');

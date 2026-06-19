@@ -120,6 +120,11 @@
   let activeSearchIdx = $state(-1);
   let activeDiffNavIdx = $state(-1);
 
+  // ── Reset active search index on query change (App.tsx:2060-2063) ─────────────
+  $effect(() => {
+    activeSearchIdx = searchQuery ? 0 : -1;
+  });
+
   // ── Search matches (App.tsx:719-731) ──────────────────────────────────────────
   const searchMatches = $derived.by(() => {
     if (!searchQuery) return [] as number[];
@@ -361,27 +366,31 @@
   />
 
   <!-- Results Area -->
-  <div class="flex-1">
+  <div class="p-4 sm:p-8 max-w-[1920px] mx-auto w-full flex-1">
     {#if textLeft === '' && textRight === ''}
       <EmptyState />
-    {:else if settings.compareMode === 'split'}
-      <SplitView
-        rows={diffData.alignedRows}
-        {activeDiffNavIdx}
-        {detectedLanguageLeft}
-        {detectedLanguageRight}
-        {searchQuery}
-        bind:leftScroll
-        bind:rightScroll
-      />
     {:else}
-      <UnifiedView
-        rows={diffData.alignedRows}
-        {activeDiffNavIdx}
-        {detectedLanguageLeft}
-        {detectedLanguageRight}
-        {searchQuery}
-      />
+      <div class="space-y-6">
+        {#if settings.compareMode === 'split'}
+          <SplitView
+            rows={diffData.alignedRows}
+            {activeDiffNavIdx}
+            {detectedLanguageLeft}
+            {detectedLanguageRight}
+            {searchQuery}
+            bind:leftScroll
+            bind:rightScroll
+          />
+        {:else}
+          <UnifiedView
+            rows={diffData.alignedRows}
+            {activeDiffNavIdx}
+            {detectedLanguageLeft}
+            {detectedLanguageRight}
+            {searchQuery}
+          />
+        {/if}
+      </div>
     {/if}
   </div>
 
