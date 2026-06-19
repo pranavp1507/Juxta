@@ -1,0 +1,11 @@
+services:
+  juxta:
+    build: .
+    image: juxta:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+      # - ORIGIN=https://diff.example.com  # set to your public URL behind a proxy
+    restart: unless-stopped
