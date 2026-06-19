@@ -12,21 +12,21 @@ This project rewrites it as **Juxta**: a self-hostable, AGPL-3.0, open-source si
 
 ## 2. Locked decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Name | **Juxta** | From "juxtapose" — place side by side; short, brandable, on-theme |
-| Framework | **SvelteKit + Svelte 5 (runes)** | User-directed migration target |
-| Runtime / pkg manager | **Bun** | User-directed; native test runner |
-| SvelteKit adapter | **adapter-node** | Self-hostable server; room for a future server-side diff API |
-| Feature scope | **Full 1:1 parity** | No functionality regression vs current app |
-| Styling | **Keep Tailwind v4** | Minimal churn; preserves existing visual design |
-| Component lib | **shadcn-svelte / bits-ui (selective)** | Accessible headless primitives for chrome; copy-in (owned code); custom diff core |
-| Animation | **Svelte transitions** (replace `motion/react`) | Native, `prefers-reduced-motion`-aware |
-| Unit tests | **bun test** | Fastest, zero extra deps, pairs with Bun |
-| E2E / a11y tests | **Playwright + axe-core** | Mature browser + accessibility coverage |
-| License | **AGPL-3.0** | Network-use copyleft protects the self-hostable open-alternative goal |
-| CI | **GitHub Actions** | Standard, free for public repos |
-| Diff location (v1) | **Client-side** | Unchanged from today; server endpoint deferred |
+| Decision              | Choice                                          | Rationale                                                                         |
+| --------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------- |
+| Name                  | **Juxta**                                       | From "juxtapose" — place side by side; short, brandable, on-theme                 |
+| Framework             | **SvelteKit + Svelte 5 (runes)**                | User-directed migration target                                                    |
+| Runtime / pkg manager | **Bun**                                         | User-directed; native test runner                                                 |
+| SvelteKit adapter     | **adapter-node**                                | Self-hostable server; room for a future server-side diff API                      |
+| Feature scope         | **Full 1:1 parity**                             | No functionality regression vs current app                                        |
+| Styling               | **Keep Tailwind v4**                            | Minimal churn; preserves existing visual design                                   |
+| Component lib         | **shadcn-svelte / bits-ui (selective)**         | Accessible headless primitives for chrome; copy-in (owned code); custom diff core |
+| Animation             | **Svelte transitions** (replace `motion/react`) | Native, `prefers-reduced-motion`-aware                                            |
+| Unit tests            | **bun test**                                    | Fastest, zero extra deps, pairs with Bun                                          |
+| E2E / a11y tests      | **Playwright + axe-core**                       | Mature browser + accessibility coverage                                           |
+| License               | **AGPL-3.0**                                    | Network-use copyleft protects the self-hostable open-alternative goal             |
+| CI                    | **GitHub Actions**                              | Standard, free for public repos                                                   |
+| Diff location (v1)    | **Client-side**                                 | Unchanged from today; server endpoint deferred                                    |
 
 ## 3. Architecture
 
@@ -34,7 +34,7 @@ SvelteKit application served by `adapter-node`, run with Bun. Diffing remains en
 
 ### Project structure
 
-```
+```text
 src/
   routes/
     +layout.svelte          # theme class wiring, global chrome
