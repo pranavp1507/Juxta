@@ -24,6 +24,7 @@
 ### Task 1: Scaffold SvelteKit + Bun skeleton
 
 **Files:**
+
 - Modify: `package.json` (replace React/Vite stack with SvelteKit/Bun)
 - Create: `svelte.config.js`
 - Modify: `vite.config.ts` (SvelteKit + Tailwind plugins)
@@ -35,6 +36,7 @@
 - Modify: `.gitignore` (add `.svelte-kit/`)
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces: a buildable SvelteKit app. `bun run dev` serves a placeholder page; `bun run build` produces a Node server in `build/`; `bun run check` runs `svelte-check`.
 
@@ -72,15 +74,15 @@
 - [ ] **Step 2: Create `svelte.config.js`**
 
 ```js
-import adapter from '@sveltejs/adapter-node';
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import adapter from "@sveltejs/adapter-node";
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   preprocess: vitePreprocess(),
   kit: {
-    adapter: adapter()
-  }
+    adapter: adapter(),
+  },
 };
 
 export default config;
@@ -89,12 +91,12 @@ export default config;
 - [ ] **Step 3: Replace `vite.config.ts`**
 
 ```ts
-import { sveltekit } from '@sveltejs/kit/vite';
-import tailwindcss from '@tailwindcss/vite';
-import { defineConfig } from 'vite';
+import { sveltekit } from "@sveltejs/kit/vite";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [tailwindcss(), sveltekit()]
+  plugins: [tailwindcss(), sveltekit()],
 });
 ```
 
@@ -137,7 +139,7 @@ export default defineConfig({
 - [ ] **Step 6: Create `src/app.css`**
 
 ```css
-@import 'tailwindcss';
+@import "tailwindcss";
 ```
 
 - [ ] **Step 7: Create `src/routes/+layout.svelte`**
@@ -164,11 +166,13 @@ Append a line `.svelte-kit/` to `.gitignore`.
 - [ ] **Step 10: Install and initialize shadcn-svelte / bits-ui**
 
 Run:
+
 ```bash
 bun install
 bunx svelte-kit sync
 bun add -d bits-ui
 ```
+
 (Component generation via `shadcn-svelte` CLI happens in Plan 2; installing `bits-ui` now verifies the dependency resolves against the chosen Svelte 5 + Tailwind v4 versions — this is the spec's compatibility-risk checkpoint.)
 
 - [ ] **Step 11: Verify build and dev server**
@@ -188,10 +192,12 @@ git commit -m "feat: scaffold SvelteKit + Bun skeleton with Tailwind v4 and adap
 ### Task 2: Port diff types + word/token diff
 
 **Files:**
+
 - Create: `src/lib/diff/engine.ts`
 - Test: `src/lib/diff/engine.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces:
   - `type DiffWord = { type: 'equal' | 'delete' | 'insert'; value: string }`
@@ -203,31 +209,39 @@ git commit -m "feat: scaffold SvelteKit + Bun skeleton with Tailwind v4 and adap
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-import { test, expect } from 'bun:test';
-import { tokenize, diffTokens } from './engine';
+import { test, expect } from "bun:test";
+import { tokenize, diffTokens } from "./engine";
 
-test('tokenize splits words, whitespace, and punctuation', () => {
-  expect(tokenize('foo = bar()')).toEqual(['foo', ' ', '=', ' ', 'bar', '(', ')']);
-});
-
-test('tokenize returns empty array for empty string', () => {
-  expect(tokenize('')).toEqual([]);
-});
-
-test('diffTokens marks inserts and deletes against equal tokens', () => {
-  const result = diffTokens(['a', ' ', 'b'], ['a', ' ', 'c']);
-  expect(result).toEqual([
-    { type: 'equal', value: 'a' },
-    { type: 'equal', value: ' ' },
-    { type: 'delete', value: 'b' },
-    { type: 'insert', value: 'c' }
+test("tokenize splits words, whitespace, and punctuation", () => {
+  expect(tokenize("foo = bar()")).toEqual([
+    "foo",
+    " ",
+    "=",
+    " ",
+    "bar",
+    "(",
+    ")",
   ]);
 });
 
-test('diffTokens with empty left is all inserts', () => {
-  expect(diffTokens([], ['x', 'y'])).toEqual([
-    { type: 'insert', value: 'x' },
-    { type: 'insert', value: 'y' }
+test("tokenize returns empty array for empty string", () => {
+  expect(tokenize("")).toEqual([]);
+});
+
+test("diffTokens marks inserts and deletes against equal tokens", () => {
+  const result = diffTokens(["a", " ", "b"], ["a", " ", "c"]);
+  expect(result).toEqual([
+    { type: "equal", value: "a" },
+    { type: "equal", value: " " },
+    { type: "delete", value: "b" },
+    { type: "insert", value: "c" },
+  ]);
+});
+
+test("diffTokens with empty left is all inserts", () => {
+  expect(diffTokens([], ["x", "y"])).toEqual([
+    { type: "insert", value: "x" },
+    { type: "insert", value: "y" },
   ]);
 });
 ```
@@ -258,43 +272,50 @@ git commit -m "feat: port diff types and word-level token diff"
 ### Task 3: Port line diff (`diffLines`)
 
 **Files:**
+
 - Modify: `src/lib/diff/engine.ts`
 - Modify: `src/lib/diff/engine.test.ts`
 
 **Interfaces:**
+
 - Consumes: `DiffOp` (Task 2).
 - Produces: `function diffLines(linesLeft: string[], linesRight: string[]): DiffOp[]`.
 
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-import { diffLines } from './engine';
+import { diffLines } from "./engine";
 
-test('diffLines returns all-equal ops for identical input', () => {
-  const ops = diffLines(['a', 'b'], ['a', 'b']);
-  expect(ops.map(o => o.type)).toEqual(['equal', 'equal']);
+test("diffLines returns all-equal ops for identical input", () => {
+  const ops = diffLines(["a", "b"], ["a", "b"]);
+  expect(ops.map((o) => o.type)).toEqual(["equal", "equal"]);
 });
 
-test('diffLines detects a single changed middle line via prefix/suffix strip', () => {
-  const ops = diffLines(['a', 'X', 'c'], ['a', 'Y', 'c']);
-  expect(ops.map(o => o.type)).toEqual(['equal', 'delete', 'insert', 'equal']);
+test("diffLines detects a single changed middle line via prefix/suffix strip", () => {
+  const ops = diffLines(["a", "X", "c"], ["a", "Y", "c"]);
+  expect(ops.map((o) => o.type)).toEqual([
+    "equal",
+    "delete",
+    "insert",
+    "equal",
+  ]);
 });
 
-test('diffLines preserves original line indices', () => {
-  const ops = diffLines(['a', 'b'], ['a', 'c']);
-  const insert = ops.find(o => o.type === 'insert');
-  expect(insert).toMatchObject({ type: 'insert', rightIdx: 1 });
+test("diffLines preserves original line indices", () => {
+  const ops = diffLines(["a", "b"], ["a", "c"]);
+  const insert = ops.find((o) => o.type === "insert");
+  expect(insert).toMatchObject({ type: "insert", rightIdx: 1 });
 });
 
-test('diffLines falls back to deletes-then-inserts above the safety cap', () => {
+test("diffLines falls back to deletes-then-inserts above the safety cap", () => {
   const left = Array.from({ length: 3501 }, (_, i) => `L${i}`);
   const right = Array.from({ length: 3501 }, (_, i) => `R${i}`);
   const ops = diffLines(left, right);
-  const types = ops.map(o => o.type);
-  expect(types.filter(t => t === 'delete').length).toBe(3501);
-  expect(types.filter(t => t === 'insert').length).toBe(3501);
+  const types = ops.map((o) => o.type);
+  expect(types.filter((t) => t === "delete").length).toBe(3501);
+  expect(types.filter((t) => t === "insert").length).toBe(3501);
   // all deletes precede all inserts
-  expect(types.indexOf('insert')).toBeGreaterThan(types.lastIndexOf('delete'));
+  expect(types.indexOf("insert")).toBeGreaterThan(types.lastIndexOf("delete"));
 });
 ```
 
@@ -324,39 +345,47 @@ git commit -m "feat: port LCS line diff with prefix/suffix strip and safety cap"
 ### Task 4: Port row alignment (`alignDiff`)
 
 **Files:**
+
 - Modify: `src/lib/diff/engine.ts`
 - Modify: `src/lib/diff/engine.test.ts`
 
 **Interfaces:**
+
 - Consumes: `DiffOp`, `AlignedDiffRow`, `tokenize`, `diffTokens` (Tasks 2–3).
 - Produces: `function alignDiff(ops: DiffOp[], highlightMode?: 'word' | 'char'): AlignedDiffRow[]`.
 
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-import { diffLines, alignDiff } from './engine';
+import { diffLines, alignDiff } from "./engine";
 
-test('alignDiff pairs a delete+insert into a modify row with inline words', () => {
-  const rows = alignDiff(diffLines(['hello world'], ['hello there']), 'word');
+test("alignDiff pairs a delete+insert into a modify row with inline words", () => {
+  const rows = alignDiff(diffLines(["hello world"], ["hello there"]), "word");
   expect(rows).toHaveLength(1);
-  expect(rows[0].type).toBe('modify');
-  expect(rows[0].leftWords?.some(w => w.type === 'delete' && w.value === 'world')).toBe(true);
-  expect(rows[0].rightWords?.some(w => w.type === 'insert' && w.value === 'there')).toBe(true);
+  expect(rows[0].type).toBe("modify");
+  expect(
+    rows[0].leftWords?.some((w) => w.type === "delete" && w.value === "world"),
+  ).toBe(true);
+  expect(
+    rows[0].rightWords?.some((w) => w.type === "insert" && w.value === "there"),
+  ).toBe(true);
 });
 
-test('alignDiff emits standalone delete and insert rows when unpaired', () => {
-  const rows = alignDiff(diffLines(['a'], ['a', 'b']));
-  expect(rows.map(r => r.type)).toEqual(['equal', 'insert']);
+test("alignDiff emits standalone delete and insert rows when unpaired", () => {
+  const rows = alignDiff(diffLines(["a"], ["a", "b"]));
+  expect(rows.map((r) => r.type)).toEqual(["equal", "insert"]);
 });
 
-test('alignDiff char mode diffs by character', () => {
-  const rows = alignDiff(diffLines(['cat'], ['car']), 'char');
-  expect(rows[0].type).toBe('modify');
-  expect(rows[0].rightWords?.some(w => w.type === 'insert' && w.value === 'r')).toBe(true);
+test("alignDiff char mode diffs by character", () => {
+  const rows = alignDiff(diffLines(["cat"], ["car"]), "char");
+  expect(rows[0].type).toBe("modify");
+  expect(
+    rows[0].rightWords?.some((w) => w.type === "insert" && w.value === "r"),
+  ).toBe(true);
 });
 
-test('alignDiff sets 1-based line numbers', () => {
-  const rows = alignDiff(diffLines(['a', 'b'], ['a', 'b']));
+test("alignDiff sets 1-based line numbers", () => {
+  const rows = alignDiff(diffLines(["a", "b"], ["a", "b"]));
   expect(rows[0]).toMatchObject({ leftLineNum: 1, rightLineNum: 1 });
   expect(rows[1]).toMatchObject({ leftLineNum: 2, rightLineNum: 2 });
 });
@@ -388,10 +417,12 @@ git commit -m "feat: port side-by-side row alignment with inline word/char highl
 ### Task 5: Port syntax tokenizer (extract from App.tsx)
 
 **Files:**
+
 - Create: `src/lib/diff/tokenizer.ts`
 - Test: `src/lib/diff/tokenizer.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces:
   - `type SegmentType = 'comment'|'string'|'keyword'|'number'|'punctuation'|'function'|'tag'|'attribute'|'property'|'value'|'selector'|'plain'`
@@ -401,40 +432,52 @@ git commit -m "feat: port side-by-side row alignment with inline word/char highl
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-import { test, expect } from 'bun:test';
-import { tokenizeLanguage } from './tokenizer';
+import { test, expect } from "bun:test";
+import { tokenizeLanguage } from "./tokenizer";
 
-test('plain returns a single plain segment', () => {
-  expect(tokenizeLanguage('hello', 'plain')).toEqual([{ text: 'hello', type: 'plain' }]);
+test("plain returns a single plain segment", () => {
+  expect(tokenizeLanguage("hello", "plain")).toEqual([
+    { text: "hello", type: "plain" },
+  ]);
 });
 
-test('ts highlights keywords', () => {
-  const segs = tokenizeLanguage('const x = 1', 'ts');
-  expect(segs.some(s => s.type === 'keyword' && s.text === 'const')).toBe(true);
-  expect(segs.some(s => s.type === 'number' && s.text === '1')).toBe(true);
+test("ts highlights keywords", () => {
+  const segs = tokenizeLanguage("const x = 1", "ts");
+  expect(segs.some((s) => s.type === "keyword" && s.text === "const")).toBe(
+    true,
+  );
+  expect(segs.some((s) => s.type === "number" && s.text === "1")).toBe(true);
 });
 
-test('json marks keys as keyword and strings as string', () => {
-  const segs = tokenizeLanguage('{"a": "b"}', 'json');
-  expect(segs.some(s => s.type === 'keyword' && s.text === '"a"')).toBe(true);
-  expect(segs.some(s => s.type === 'string' && s.text === '"b"')).toBe(true);
+test("json marks keys as keyword and strings as string", () => {
+  const segs = tokenizeLanguage('{"a": "b"}', "json");
+  expect(segs.some((s) => s.type === "keyword" && s.text === '"a"')).toBe(true);
+  expect(segs.some((s) => s.type === "string" && s.text === '"b"')).toBe(true);
 });
 
-test('css marks selectors and properties', () => {
-  const segs = tokenizeLanguage('.x { color: red; }', 'css');
-  expect(segs.some(s => s.type === 'selector')).toBe(true);
-  expect(segs.some(s => s.type === 'property' && s.text === 'color')).toBe(true);
+test("css marks selectors and properties", () => {
+  const segs = tokenizeLanguage(".x { color: red; }", "css");
+  expect(segs.some((s) => s.type === "selector")).toBe(true);
+  expect(segs.some((s) => s.type === "property" && s.text === "color")).toBe(
+    true,
+  );
 });
 
-test('html marks tags and attributes', () => {
-  const segs = tokenizeLanguage('<a href="x">', 'html');
-  expect(segs.some(s => s.type === 'tag' && s.text === 'a')).toBe(true);
-  expect(segs.some(s => s.type === 'attribute' && s.text === 'href')).toBe(true);
+test("html marks tags and attributes", () => {
+  const segs = tokenizeLanguage('<a href="x">', "html");
+  expect(segs.some((s) => s.type === "tag" && s.text === "a")).toBe(true);
+  expect(segs.some((s) => s.type === "attribute" && s.text === "href")).toBe(
+    true,
+  );
 });
 
-test('concatenated segment text reconstructs the original input', () => {
-  const input = 'const y = foo(1);';
-  expect(tokenizeLanguage(input, 'ts').map(s => s.text).join('')).toBe(input);
+test("concatenated segment text reconstructs the original input", () => {
+  const input = "const y = foo(1);";
+  expect(
+    tokenizeLanguage(input, "ts")
+      .map((s) => s.text)
+      .join(""),
+  ).toBe(input);
 });
 ```
 
@@ -464,37 +507,39 @@ git commit -m "feat: extract syntax tokenizer into pure lib module"
 ### Task 6: Port language detection (extract from App.tsx)
 
 **Files:**
+
 - Create: `src/lib/diff/detect.ts`
 - Test: `src/lib/diff/detect.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Lang` (Task 5).
 - Produces: `function detectLanguage(text: string): Lang`.
 
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-import { test, expect } from 'bun:test';
-import { detectLanguage } from './detect';
+import { test, expect } from "bun:test";
+import { detectLanguage } from "./detect";
 
-test('empty string detects plain', () => {
-  expect(detectLanguage('   ')).toBe('plain');
+test("empty string detects plain", () => {
+  expect(detectLanguage("   ")).toBe("plain");
 });
 
-test('valid object detects json', () => {
-  expect(detectLanguage('{"a": 1}')).toBe('json');
+test("valid object detects json", () => {
+  expect(detectLanguage('{"a": 1}')).toBe("json");
 });
 
-test('markup detects html', () => {
-  expect(detectLanguage('<!DOCTYPE html><html></html>')).toBe('html');
+test("markup detects html", () => {
+  expect(detectLanguage("<!DOCTYPE html><html></html>")).toBe("html");
 });
 
-test('rule block detects css', () => {
-  expect(detectLanguage('.btn { color: red; }')).toBe('css');
+test("rule block detects css", () => {
+  expect(detectLanguage(".btn { color: red; }")).toBe("css");
 });
 
-test('code keywords detect ts', () => {
-  expect(detectLanguage('const x = 1;')).toBe('ts');
+test("code keywords detect ts", () => {
+  expect(detectLanguage("const x = 1;")).toBe("ts");
 });
 ```
 
@@ -524,10 +569,12 @@ git commit -m "feat: extract language detection into pure lib module"
 ### Task 7: Port export report generators (extract from App.tsx)
 
 **Files:**
+
 - Create: `src/lib/export/index.ts`
 - Test: `src/lib/export/index.test.ts`
 
 **Interfaces:**
+
 - Consumes: `AlignedDiffRow` (Task 2).
 - Produces:
   - `interface DiffStats { similarityPercentage: number; additions: number; deletions: number; modifications: number }`
@@ -543,45 +590,75 @@ git commit -m "feat: extract language detection into pure lib module"
 - [ ] **Step 1: Write the failing test**
 
 ```ts
-import { test, expect } from 'bun:test';
+import { test, expect } from "bun:test";
 import {
-  escapeHtml, buildTxtReport, buildMdReport, buildJsonReport, buildHtmlReport
-} from './index';
-import type { AlignedDiffRow } from '../diff/engine';
+  escapeHtml,
+  buildTxtReport,
+  buildMdReport,
+  buildJsonReport,
+  buildHtmlReport,
+} from "./index";
+import type { AlignedDiffRow } from "../diff/engine";
 
 const rows: AlignedDiffRow[] = [
-  { type: 'equal', leftLineNum: 1, rightLineNum: 1, leftContent: 'same', rightContent: 'same' },
-  { type: 'modify', leftLineNum: 2, rightLineNum: 2, leftContent: 'old', rightContent: 'new' }
+  {
+    type: "equal",
+    leftLineNum: 1,
+    rightLineNum: 1,
+    leftContent: "same",
+    rightContent: "same",
+  },
+  {
+    type: "modify",
+    leftLineNum: 2,
+    rightLineNum: 2,
+    leftContent: "old",
+    rightContent: "new",
+  },
 ];
-const stats = { similarityPercentage: 50, additions: 0, deletions: 0, modifications: 1 };
-const at = new Date('2026-06-18T00:00:00Z');
+const stats = {
+  similarityPercentage: 50,
+  additions: 0,
+  deletions: 0,
+  modifications: 1,
+};
+const at = new Date("2026-06-18T00:00:00Z");
 
-test('escapeHtml escapes the five entities', () => {
-  expect(escapeHtml(`<a href="x" data='y'>&`)).toBe('&lt;a href=&quot;x&quot; data=&#039;y&#039;&gt;&amp;');
+test("escapeHtml escapes the five entities", () => {
+  expect(escapeHtml(`<a href="x" data='y'>&`)).toBe(
+    "&lt;a href=&quot;x&quot; data=&#039;y&#039;&gt;&amp;",
+  );
 });
 
-test('txt report includes the similarity index and content', () => {
+test("txt report includes the similarity index and content", () => {
   const out = buildTxtReport(rows, stats, at);
-  expect(out).toContain('Similarity Index: 50%');
-  expect(out).toContain('same');
+  expect(out).toContain("Similarity Index: 50%");
+  expect(out).toContain("same");
 });
 
-test('md report renders a table and the summary', () => {
+test("md report renders a table and the summary", () => {
   const out = buildMdReport(rows, stats, at);
-  expect(out).toContain('# DiffStudio Comparison Report'.replace('DiffStudio', 'Juxta'));
-  expect(out).toContain('| Source (L) | Target (R) | Symbol | Content |');
+  expect(out).toContain(
+    "# DiffStudio Comparison Report".replace("DiffStudio", "Juxta"),
+  );
+  expect(out).toContain("| Source (L) | Target (R) | Symbol | Content |");
 });
 
-test('json report is valid JSON with analytics + diffData', () => {
+test("json report is valid JSON with analytics + diffData", () => {
   const obj = JSON.parse(buildJsonReport(rows, stats, at));
   expect(obj.analytics.congruencyPercentage).toBe(50);
   expect(obj.diffData).toHaveLength(2);
 });
 
-test('html report is a full document with escaped content', () => {
-  const out = buildHtmlReport(rows, stats, { showLineNumbers: true, theme: 'dark' }, at);
-  expect(out.startsWith('<!DOCTYPE html>')).toBe(true);
-  expect(out).toContain('row-modify');
+test("html report is a full document with escaped content", () => {
+  const out = buildHtmlReport(
+    rows,
+    stats,
+    { showLineNumbers: true, theme: "dark" },
+    at,
+  );
+  expect(out.startsWith("<!DOCTYPE html>")).toBe(true);
+  expect(out).toContain("row-modify");
 });
 ```
 
@@ -593,6 +670,7 @@ Expected: FAIL — `Cannot find module './index'`.
 - [ ] **Step 3: Extract and refactor the implementation**
 
 From baseline `src/App.tsx`, locate `escapeHtml` (lines ~1023–1030) and `exportReport` (lines ~1033 onward, through the end of the HTML branch). Split `exportReport`'s four format branches into the four pure `build*Report` functions per the Interfaces block:
+
 - Move the `txt` branch body into `buildTxtReport`, the `md` branch into `buildMdReport`, the `json` branch into `buildJsonReport`, the `html` branch into `buildHtmlReport(rows, stats, opts, generatedAt)`.
 - Replace every `new Date()` with the injected `generatedAt` parameter.
 - Replace each reference to a free variable (`similarityPercentage`, `additions`, `deletions`, `modifications`, `alignedRows`, `showLineNumbers`, `theme`) with the corresponding `stats.*` / `rows` / `opts.*` parameter.
@@ -621,9 +699,11 @@ git commit -m "feat: extract pure export report generators (txt/md/json/html)"
 ### Task 8: Minimal diff page (in-browser smoke)
 
 **Files:**
+
 - Modify: `src/routes/+page.svelte`
 
 **Interfaces:**
+
 - Consumes: `diffLines`, `alignDiff` (Tasks 3–4).
 - Produces: a page with two `<textarea>`s and a rendered list of aligned rows. This is a smoke screen, NOT the parity UI (Plan 2 replaces it).
 
@@ -679,6 +759,7 @@ git commit -m "feat: minimal in-browser diff smoke page wired to the diff engine
 ## Self-Review
 
 **1. Spec coverage (Plan 1 portion):**
+
 - Stack (SvelteKit/Svelte5/Bun/adapter-node/Tailwind v4) → Task 1. ✓
 - shadcn-svelte/bits-ui compatibility checkpoint → Task 1 Step 10. ✓
 - Diff engine verbatim port incl. safety cap → Tasks 2–4 (cap covered by Task 3 test). ✓

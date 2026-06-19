@@ -4,47 +4,52 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-DiffStudio (internal name "Text Compare") is a client-side, side-by-side text/code diff utility. It is a single-page React 19 + Vite + Tailwind v4 app generated from Google AI Studio. All diffing, tokenizing, syntax highlighting, and report export happen in the browser — there is no backend at runtime.
+**Juxta** is a self-hostable, open-source side-by-side text/code diff tool. Stack: SvelteKit 2 + Svelte 5 (runes) + Bun + `@sveltejs/adapter-node` + Tailwind v4. All diffing, tokenizing, syntax highlighting, and report export run in the browser — there is no runtime backend. Self-hosting is via Docker (multi-stage image, `docker compose up`).
 
 ## Commands
 
 ```bash
-npm install          # install dependencies
-npm run dev          # Vite dev server on port 3000, host 0.0.0.0
-npm run build        # production build to dist/
-npm run preview      # preview the production build
-npm run lint         # type-check only: tsc --noEmit (there is no ESLint)
+bun install          # install dependencies
+bun run dev          # Vite dev server on port 3000, host 0.0.0.0
+bun run build        # production build to build/ (adapter-node; serve with node build/)
+bun run preview      # preview the production build
+bun run check        # svelte-check + TS type-check (0 errors = clean)
+bun test             # Bun unit test runner (38 tests across diff/export/state)
+bun run test:e2e     # Playwright E2E + axe accessibility scans (12 tests)
 ```
-
-There is no test framework configured. "Lint" is a TypeScript type-check.
 
 ## Architecture
 
-Two files contain essentially all the logic:
+### Pure logic — `src/lib/diff/` and `src/lib/export/`
 
-- [src/utils/diff.ts](src/utils/diff.ts) — pure, dependency-free diff engine. The pipeline is:
-  1. `diffLines(left, right)` — LCS line diff. Strips identical prefix/suffix first, then runs DP only on the differing middle. Hard cap: if `midLeft.length * midRight.length >= 12_250_000` (~3500×3500) it bails to a naive "all deletes then all inserts" fallback to avoid freezing the browser. Returns `DiffOp[]`.
-  2. `alignDiff(ops, highlightMode)` — converts the linear op stream into side-by-side `AlignedDiffRow[]`. Consecutive delete+insert runs are paired into `modify` rows; for paired rows it runs `diffTokens` to produce inline word/char highlights (`leftWords`/`rightWords`).
-  3. `diffTokens` / `tokenize` — intra-line LCS over word tokens (`word` mode) or characters (`char` mode).
-  Row types are `equal | delete | insert | modify`. This is the data contract the UI renders against.
+- **`src/lib/diff/engine.ts`** — dependency-free diff engine (ported from the original React prototype). Pipeline:
+  1. `diffLines(left, right)` — LCS line diff. Strips identical prefix/suffix, runs DP on the differing middle. Hard cap: if `midLeft.length * midRight.length >= 12_250_000` (~3500×3500) bails to a naive delete-then-insert fallback. Returns `DiffOp[]`.
+  2. `alignDiff(ops, highlightMode)` — converts the op stream to side-by-side `AlignedDiffRow[]`. Consecutive delete+insert runs are paired as `modify` rows; `diffTokens` produces inline word/char highlights (`leftWords`/`rightWords`).
+  3. `diffTokens` / `tokenize` — intra-line LCS over word tokens or characters.
+  Row types: `equal | delete | insert | modify`.
+- **`src/lib/diff/tokenizer.ts`** — pure regex syntax tokenizer (`tokenizeLanguage(text, lang)`), supporting `ts | html | css | json | plain`. No JSX, no DOM — safe anywhere.
+- **`src/lib/diff/detect.ts`** — `detectLanguage(text)` heuristic (returns `Lang`).
+- **`src/lib/export/`** — `exportReport(format, rows, stats)` builds `html | txt | md | json` reports client-side and triggers a download via `download.ts`.
 
-- [src/App.tsx](src/App.tsx) — the entire UI (~2600 lines, single default-export component). Key pieces:
-  - **Syntax highlighting** is a self-contained regex tokenizer, `tokenizeLanguage(text, lang)`, supporting `ts | html | css | json | plain` with `auto` detection via `detectLanguage`. It is independent of the diff engine and applied only to `equal` rows; `modify` rows get a lighter inline token coloring.
-  - **Diff computation** runs in a `useMemo` keyed on `committedTextLeft`, `committedTextRight`, and `highlightMode`, and also measures `parseTimeMs`.
-  - **Commit/dirty model**: edits update `textLeft`/`textRight`; the diff renders from `committedText*`. When `autoCompare` is on they sync automatically; when off, `triggerCompare()` (Alt+Enter) commits manually and `isDirty` tracks divergence.
-  - **Persistence**: every user preference (theme, compareMode, syncScroll, whitespace, line numbers, wrap, highlightMode, syntaxHighlighting, syntaxScheme, responsiveLayout, autoCompare, languageMode) is mirrored to `localStorage` under `text-compare-*` keys via individual `useEffect`s, and lazily initialized from there.
-  - **Export**: `exportReport(format)` builds `html | txt | md | json` reports client-side and triggers a download.
-  - **Keyboard shortcuts** are handled by a single `keydown` listener (all Alt-based): Alt+N/P jump next/prev diff, Alt+W wrap, Alt+L line numbers, Alt+M word/char mode, Alt+K shortcuts modal, Alt+E export HTML, Alt+C clear, Alt+Enter compare, Alt+X swap, Alt+F focus search.
+### UI — `src/lib/components/` and `src/routes/`
 
-- [src/main.tsx](src/main.tsx) — trivial React root mount under `StrictMode`.
+- Components: `TopNav`, `ControlBar`, `AdvancedBar`, `EditorPane`, `SplitView`, `UnifiedView`, `DiffLine`, `StatusFooter`, `EmptyState`, `ShortcutsModal`. shadcn-style primitives (bits-ui) live in `src/lib/components/ui/`.
+- `src/routes/+page.svelte` — main page: wires settings store → diff derived → UI components. Keyboard shortcuts are delegated to `src/lib/actions/shortcuts.ts` (all Alt-based: Alt+N/P jump diffs, Alt+W wrap, Alt+L line numbers, Alt+M word/char, Alt+K shortcuts modal, Alt+E export, Alt+C clear, Alt+Enter compare, Alt+X swap, Alt+F search).
+
+### State — `src/lib/state/`
+
+- `settings.svelte.ts` — Svelte 5 `$state`-backed singleton. Every user preference (theme, compareMode, syncScroll, showWhitespace, showLineNumbers, lineWrap, highlightMode, syntaxHighlighting, syntaxScheme, autoCompare, languageMode) is persisted to `localStorage` under `juxta-*` keys (e.g. `juxta-theme`, `juxta-compareMode`).
+- `persisted.ts` — pure serialization helpers, unit-testable without the Svelte compiler.
 
 ## Conventions & gotchas
 
-- The `@/*` path alias maps to the repo root (see [tsconfig.json](tsconfig.json) and [vite.config.ts](vite.config.ts)), but current code uses relative imports.
-- **HMR / file-watching is conditionally disabled** in [vite.config.ts](vite.config.ts) via `DISABLE_HMR=true` (set by AI Studio to prevent flicker during agent edits). Don't re-enable watching there.
-- `express`, `dotenv`, and `@google/genai` are listed as dependencies and `metadata.json` declares a server-side Gemini capability, but **no server or Gemini code currently exists** in the repo (`npm run clean` even removes a `server.js` that isn't checked in). Treat the app as fully client-side unless you are intentionally adding the server layer. `GEMINI_API_KEY`/`APP_URL` (see [.env.example](.env.example)) are injected by AI Studio at runtime.
-- Tailwind v4 is wired through the `@tailwindcss/vite` plugin (no `tailwind.config.js`); styles live in [src/index.css](src/index.css) and inline class names.
-- Some class names in App.tsx use non-standard Tailwind shades (e.g. `text-slate-550`, `text-amber-750`) — these are intentional custom values, not typos to "fix".
+- **Bun is the runtime** — use `bun` / `bun run` for all scripts; `bun test` for unit tests; `node build/` to run the production server.
+- **SvelteKit adapter-node** — production output is `build/index.js`; configure `PORT`, `HOST`, and `ORIGIN` env vars for self-hosting (see `.env.example` and `docker-compose.yml`).
+- Tailwind v4 is wired through `@tailwindcss/vite` (no `tailwind.config.js`); styles live in `src/app.css` and inline class names.
+- **`$lib` alias** maps to `src/lib/`; `src/lib/diff/engine` is the canonical diff import (not `src/utils/diff` — that React-era file is gone).
+- Unit tests live alongside their modules (`*.test.ts`) and are discovered automatically by `bun test`.
+- E2E tests in `e2e/` use Playwright + `@axe-core/playwright` for accessibility gates. Run with `bun run test:e2e`.
+- Docker: `Dockerfile` uses a multi-stage build; `docker-compose.yml` wires up PORT/ORIGIN. `docker compose up` is the recommended self-host path.
 
 ## Standard Workflow (skills + MCP servers)
 
@@ -75,13 +80,13 @@ Every non-trivial change to this project should run through the phased workflow 
 
 ### Phase 4 — Implement
 
-- **superpowers `test-driven-development`** where a test harness exists. ⚠️ This project has **no test runner** — when adding one isn't in scope, substitute a concrete manual verification step (load the app, check the diff output) and note it explicitly.
+- **superpowers `test-driven-development`** where a test harness exists. This project has `bun test` (unit) and `bun run test:e2e` (Playwright) — write/update tests for logic changes; for UI-only tweaks, a manual verification step (load the app, check the diff output) is acceptable if noted explicitly.
 - **karpathy-guidelines**: minimal, reviewable diffs; no speculative abstraction.
 - **git** (`git_branch`/`git_create_branch`, `git_add`, `git_diff_staged`): work on a branch, stage deliberately, inspect the staged diff before committing.
 
 ### Phase 5 — Verify & review
 
-- **superpowers `verification-before-completion`**: run `npm run lint` (tsc type-check) and confirm output before claiming done — evidence, not assertion.
+- **superpowers `verification-before-completion`**: run `bun run check` (svelte-check + TS) and `bun test` and confirm output before claiming done — evidence, not assertion.
 - **superpowers `requesting-code-review`** for substantial changes; **caveman-review** (`/caveman-review`) for terse one-line PR-style notes.
 - **sequential-thinking**: use `systematic-debugging` (superpowers) + step reasoning if verification surfaces a failure — diagnose before patching.
 
@@ -98,7 +103,7 @@ Every non-trivial change to this project should run through the phased workflow 
 | Coding discipline (surgical, assumption-checked) | andrej-karpathy-skills `karpathy-guidelines` |
 | Process (brainstorm → plan → TDD → verify → review) | superpowers skills |
 | Step-by-step reasoning on hard logic | sequential-thinking MCP |
-| Navigate the App.tsx monolith by AST | tree-sitter MCP |
+| Navigate Svelte components by AST | tree-sitter MCP |
 | Per-session graph memory (`.claude/project-context.jsonl`) | memory MCP |
 | Cross-session goals / decisions / recall | octopoda MCP |
 | Branch, diff, commit | git MCP (needs `git init` first) |
