@@ -30,7 +30,10 @@
 
 ### Docker (recommended)
 
+Build the image from source, then run it:
+
 ```bash
+docker build -t juxta:latest .
 docker run -p 3000:3000 juxta:latest
 ```
 
