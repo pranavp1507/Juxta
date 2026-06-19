@@ -30,7 +30,13 @@
 
 ### Docker (recommended)
 
-Build the image from source, then run it:
+Pull the published image from GitHub Container Registry and run it:
+
+```bash
+docker run -p 3000:3000 ghcr.io/pranavp1507/juxta:latest
+```
+
+Or build it from source instead:
 
 ```bash
 docker build -t juxta:latest .

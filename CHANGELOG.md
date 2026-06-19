@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Docker self-hosting: multi-stage `Dockerfile` (Bun) + `docker-compose.yml` with healthcheck and `PORT`/`HOST`/`ORIGIN` configuration.
 - Open-source project documentation: AGPL-3.0 `LICENSE`, `README`, `CONTRIBUTING`, `CODE_OF_CONDUCT`, `SECURITY`, and GitHub issue/PR templates.
 - GitHub Actions CI gating type-check, unit tests, build, end-to-end tests, and the Docker image build.
+- Container image published to GitHub Container Registry (`ghcr.io/pranavp1507/juxta`) on pushes to `main` and version tags, tagged `latest`, the commit SHA, and semver on tags.
 
 ### Fixed
 - Light/dark theme toggle had no visual effect — the React→Svelte port dropped the class-based `@custom-variant dark` (and the `@theme` font definitions and custom scrollbar styles) from the global stylesheet, so Tailwind v4's `dark:` utilities followed `prefers-color-scheme` instead of the toggled `.dark` class. Restored in `src/app.css`, with an E2E test asserting the toggle changes rendered styles.
